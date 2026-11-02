@@ -53,11 +53,14 @@ const frDate = s => new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "l
 const OCCASIONS = ["noel", "anniv"]; // "" = valable pour les deux
 // Anniversaire au format "MM-JJ" (sans année) ; le 29 février est accepté.
 const isBirthday = s => { const m = /^(\d{2})-(\d{2})$/.exec(s || ""); if (!m) return false; const mo = +m[1], d = +m[2]; return mo >= 1 && mo <= 12 && d >= 1 && d <= new Date(Date.UTC(2000, mo, 0)).getUTCDate(); };
+// Dates connues de la famille (jour et mois). Utilisées tant que la personne n'a pas choisi sa date elle-même.
+const DEFAULT_BDAYS = { "zoé": "10-28", "ethen": "11-01", "jade": "01-21", "vincent": "03-18", "chiara": "05-24", "laurence": "08-29", "paul": "09-22" };
+const bdayOf = p => p.birthday !== undefined ? p.birthday : (DEFAULT_BDAYS[String(p.name).trim().toLowerCase().normalize("NFC")] || null);
 const validCode = c => typeof c === "string" && /^[0-9]{4,12}$/.test(c.trim());
 
 async function stateFor(st, me, people) {
   // Les dates d'anniversaire ne sont visibles qu'une fois connecté.
-  const withBday = p => me ? { ...publicPerson(p), birthday: p.birthday || null } : publicPerson(p);
+  const withBday = p => me ? { ...publicPerson(p), birthday: bdayOf(p) } : publicPerson(p);
   const out = { me: me ? withBday(me) : null, people: people.map(withBday), needsSetup: people.length === 0 };
   if (!me) return out;
   if (MODE === "cadeaux") {
@@ -100,7 +103,7 @@ export default async (req) => {
       seen.add(name.toLowerCase());
       if (i === 0 && !validCode(code)) return fail("Votre code d'organisateur doit faire 4 à 12 chiffres.");
       if (code && !validCode(code)) return fail("Le code de " + name + " doit faire 4 à 12 chiffres.");
-      made.push({ id: newId(), name, isAdmin: i === 0, codeHash: code ? hashCode(code) : null, ver: 0, createdAt: Date.now() + i });
+      made.push({ id: newId(), name, isAdmin: i === 0, codeHash: code ? hashCode(code) : null, ver: 0, createdAt: Date.now() + i, birthday: DEFAULT_BDAYS[name.toLowerCase().normalize("NFC")] || null });
     }
     for (const p of made) await st.setJSON("person/" + p.id, p);
     return json({ token: sign(made[0], sec) });

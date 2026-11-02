@@ -28,4 +28,5 @@ Le glisser-déposer « Netlify Drop » ne suffit pas : il ne publie pas le serve
 - En haut de la page, le bouton « Noël / Anniversaires » change le décor (sapin, rouge et or, ou violet, corail et confettis). Il passe tout seul sur Noël en novembre et décembre ; le choix de chacun est retenu sur son appareil.
 - Chaque idée peut être marquée « Noël », « Anniversaire » ou « Les deux », et la liste se filtre par occasion.
 - « Anniversaires » (en haut, une fois connecté) : chacun indique son jour et son mois de naissance ; l'organisateur peut le faire pour tout le monde. Le bandeau affiche alors le compte à rebours jusqu'à Noël et jusqu'au prochain anniversaire.
+- Les anniversaires de la famille sont déjà enregistrés (Paul 22 septembre, Laurence 29 août, Vincent 18 mars, Jade 21 janvier, Ethen 1er novembre, Zoé 28 octobre, Chiara 24 mai), y compris sur un site déjà configuré. Chacun peut corriger ou effacer sa date dans « Anniversaires ».
 - Les dates d'anniversaire ne sont visibles qu'une fois connecté.
