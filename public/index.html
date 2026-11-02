@@ -213,6 +213,12 @@ h2{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,34px);lin
 .filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .filters .c{font-weight:400;opacity:.8;font-variant-numeric:tabular-nums}
 
+form.edit-form{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) 140px;gap:8px;background:var(--surface);border:1.5px solid var(--accent);border-radius:14px;padding:14px}
+form.edit-form .n2{grid-column:1/3}
+form.edit-form .lbl{grid-column:1/-1;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:6px}
+form.edit-form .row{grid-column:1/-1;display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+form.edit-form input[readonly]{background:var(--bg);color:var(--muted)}
+@media (max-width:560px){form.edit-form{grid-template-columns:minmax(0,1fr) 120px}form.edit-form .t,form.edit-form .n2{grid-column:1/-1}}
 form.add{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) 140px;gap:8px;margin:14px 0 20px;background:var(--paper);border:1.5px dashed var(--line);border-radius:14px;padding:14px}
 form.add .lbl{grid-column:1/-1;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--accent)}
 form.add .n2{grid-column:1/3}
@@ -399,6 +405,7 @@ const ICONS={
   check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
   lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   mask:'<path d="M3 8c3-1.5 15-1.5 18 0 0 6-3 9-5 9-1.5 0-2.5-2-4-2s-2.5 2-4 2c-2 0-5-3-5-9z"/><path d="M7.5 11.5h2M14.5 11.5h2"/>',
+  pencil:'<path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
   heart:'<path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>',
   tie:'<path d="M9.5 3h5l-1.2 3.2L15.5 16 12 21l-3.5-5 2.2-9.8z"/><path d="M10.7 6.2h2.6"/>',
@@ -664,13 +671,37 @@ function ideaCard(g,cls,actions,byline){
     g.note||link?h("div",{class:"note"},g.note||"",g.note&&link?" · ":"",link):null,
     h("div",{class:"foot"},h("div",{style:"display:flex;gap:8px;align-items:center;flex-wrap:wrap"},byline),actions));
 }
+function editForm(g){
+  const p=S.d.people.find(x=>x.id===g.for)||{},me=S.d.me,lockTitle=g.fromSuggestion&&!me.isAdmin;
+  const v=S.ui.editVals||(S.ui.editVals={title:g.title,link:g.link||"",price:g.price!=null?String(g.price).replace(".",","):"",note:g.note||"",occasion:g.occasion||""});
+  const inp=(name,attrs)=>h("input",Object.assign({name,value:v[name],oninput:e=>{v[name]=e.target.value}},attrs));
+  const close=()=>{S.ui.edit=null;S.ui.editVals=null;render()};
+  return h("form",{class:"edit-form",onsubmit:async e=>{e.preventDefault();if(!v.title.trim())return;
+      if(await act({type:"editGift",id:g.id,title:v.title.trim(),link:v.link.trim(),price:v.price.replace(/[^\d,.]/g,""),note:v.note.trim(),occasion:v.occasion},"Idée modifiée."))close()}},
+    h("div",{class:"lbl"},ico("pencil"),"Modifier l'idée"),
+    inp("title",{class:"t",maxlength:"120",required:true,"aria-label":"Idée cadeau",readonly:lockTitle,title:lockTitle?"Le titre d'une suggestion acceptée ne peut pas changer":null}),
+    inp("link",{placeholder:"Lien (facultatif)",type:"url",maxlength:"500","aria-label":"Lien"}),
+    inp("price",{placeholder:"Prix €",inputmode:"decimal",maxlength:"10","aria-label":"Prix en euros"}),
+    inp("note",{class:"n2",placeholder:"Précision : taille, couleur, où l'acheter…",maxlength:"300","aria-label":"Précision"}),
+    h("select",{name:"occasion","aria-label":"Pour quelle occasion",onchange:e=>{v.occasion=e.target.value}},
+      h("option",{value:"noel",selected:v.occasion==="noel",text:"Noël"}),
+      h("option",{value:"anniv",selected:v.occasion==="anniv",text:"Anniversaire"}),
+      p.parent==="meres"||v.occasion==="meres"?h("option",{value:"meres",selected:v.occasion==="meres",text:"Fête des mères"}):null,
+      p.parent==="peres"||v.occasion==="peres"?h("option",{value:"peres",selected:v.occasion==="peres",text:"Fête des pères"}):null,
+      h("option",{value:"",selected:!v.occasion,text:"Toutes les occasions"})),
+    h("div",{class:"row"},h("span",{class:"by",text:lockTitle?"Le titre d'une suggestion acceptée ne change pas ; le reste peut être précisé.":"Modifiable tant que personne n'a décidé de l'offrir."}),
+      h("span",{class:"acts"},h("button",{type:"button",class:"ghost",onclick:close},"Annuler"),h("button",{class:"primary",type:"submit"},"Enregistrer"))));
+}
 function giftCard(g,mine){
   const me=S.d.me,k="del:"+g.id;
+  if(S.ui.edit===g.id)return editForm(g);
+  const canEdit=(g.addedBy===me.id||me.isAdmin)&&!g.reservedBy;
   const status=!mine&&g.reservedBy?h("span",{class:"pill"},ico("check"),isMe(g.reservedBy)?"Je l'offre":"Offert par "+pname(g.reservedBy)):null;
   const canDel=(g.addedBy===me.id&&!g.fromSuggestion)||me.isAdmin;
   const actions=h("div",{class:"acts"},
     !mine&&!g.reservedBy?h("button",{class:"gift-btn",onclick:()=>act({type:"reserve",id:g.id},"C'est noté : vous l'offrez.")},ico("gift"),"Je l'offre"):null,
     !mine&&g.reservedBy&&(isMe(g.reservedBy)||me.isAdmin)?h("button",{class:"ghost",onclick:()=>act({type:"unreserve",id:g.id})},"Annuler"):null,
+    canEdit?h("button",{class:"ghost",onclick:()=>{S.ui.edit=g.id;S.ui.editVals=null;render();setTimeout(()=>{const f=document.querySelector("form.edit-form input:not([readonly])");if(f)f.focus()})}},ico("pencil")," Modifier"):null,
     canDel?h("button",{class:"ghost danger",onclick:()=>{if(askConfirm(k))act({type:"deleteGift",id:g.id},"Idée supprimée.")}},S.ui.confirm===k?"Confirmer la suppression":"Supprimer"):null);
   const by=g.fromSuggestion?"Suggestion acceptée"+(mine&&!me.isAdmin?" · seul "+adminName()+" peut l'effacer":""):g.addedBy===g.for?(mine?"Mon idée":"Son idée"):"Idée de "+pname(g.addedBy);
   return ideaCard(g,"gift"+(g.reservedBy&&!mine?" taken":""),actions,[status,h("span",{class:"by",text:by})]);
