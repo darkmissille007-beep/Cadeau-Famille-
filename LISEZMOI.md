@@ -30,3 +30,9 @@ Le glisser-déposer « Netlify Drop » ne suffit pas : il ne publie pas le serve
 - « Anniversaires » (en haut, une fois connecté) : chacun indique son jour et son mois de naissance ; l'organisateur peut le faire pour tout le monde. Le bandeau affiche alors le compte à rebours jusqu'à Noël et jusqu'au prochain anniversaire.
 - Les anniversaires de la famille sont déjà enregistrés (Paul 22 septembre, Laurence 29 août, Vincent 18 mars, Jade 21 janvier, Ethen 1er novembre, Zoé 28 octobre, Chiara 24 mai), y compris sur un site déjà configuré. Chacun peut corriger ou effacer sa date dans « Anniversaires ».
 - Les dates d'anniversaire ne sont visibles qu'une fois connecté.
+
+## Fête des mères et fête des pères
+- Le bouton en haut propose aussi « Fête des mères » (framboise, sauge, fleurs) et « Fête des pères » (bleu marine, moutarde, étoiles), avec « Bonne fête, maman » / « Bonne fête, papa ».
+- Les dates sont calculées toutes seules chaque année (règles françaises) : fête des mères le dernier dimanche de mai, ou le premier dimanche de juin quand il tombe à la Pentecôte ; fête des pères le troisième dimanche de juin.
+- Le décor passe tout seul sur la fête des mères 3 semaines avant, puis sur la fête des pères jusqu'au jour J. Un thème choisi à la main est retenu 3 semaines.
+- Les idées peuvent être marquées « Fête des mères » ou « Fête des pères », et la liste se filtre aussi par ces occasions.

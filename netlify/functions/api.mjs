@@ -50,7 +50,7 @@ const publicPerson = p => ({ id: p.id, name: p.name, isAdmin: !!p.isAdmin, hasCo
 const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim().split(" ").map(w => w.length > 3 ? w.replace(/[sx]$/, "") : w).join(" ");
 const isDate = s => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s + "T00:00:00Z")) && new Date(s + "T00:00:00Z").toISOString().slice(0, 10) === s;
 const frDate = s => new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(s + "T00:00:00Z"));
-const OCCASIONS = ["noel", "anniv"]; // "" = valable pour les deux
+const OCCASIONS = ["noel", "anniv", "meres", "peres"]; // "" = valable pour toutes les occasions
 // Anniversaire au format "MM-JJ" (sans année) ; le 29 février est accepté.
 const isBirthday = s => { const m = /^(\d{2})-(\d{2})$/.exec(s || ""); if (!m) return false; const mo = +m[1], d = +m[2]; return mo >= 1 && mo <= 12 && d >= 1 && d <= new Date(Date.UTC(2000, mo, 0)).getUTCDate(); };
 // Dates connues de la famille (jour et mois). Utilisées tant que la personne n'a pas choisi sa date elle-même.

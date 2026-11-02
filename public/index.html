@@ -7,12 +7,30 @@
 <title>Cadeaux de la famille</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
-<script>/* Thème avant l'affichage : Noël en novembre-décembre, Anniversaire le reste de l'année, sauf choix mémorisé. */
-(function(){var o="";try{o=localStorage.getItem("occ")||""}catch(e){}if(o!=="noel"&&o!=="anniv")o=new Date().getMonth()>=10?"noel":"anniv";document.documentElement.setAttribute("data-occasion",o)})();</script>
+<script>/* Dates des fêtes (France) et thème avant l'affichage. */
+(function(){
+  function paques(y){var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),n=h+l-7*m+114;return new Date(y,Math.floor(n/31)-1,n%31+1)}
+  /* Fête des mères : dernier dimanche de mai, ou premier dimanche de juin si c'est la Pentecôte. */
+  function meres(y){var d=new Date(y,4,31);d.setDate(31-d.getDay());var pe=paques(y);pe.setDate(pe.getDate()+49);if(pe.getTime()===d.getTime())d.setDate(d.getDate()+7);return d}
+  /* Fête des pères : troisième dimanche de juin. */
+  function peres(y){var d=new Date(y,5,1);d.setDate(1+(7-d.getDay())%7+14);return d}
+  var t=new Date();t=new Date(t.getFullYear(),t.getMonth(),t.getDate());
+  function prochaine(fn){var d=fn(t.getFullYear());return d<t?fn(t.getFullYear()+1):d}
+  window.FETES={meres:function(){return prochaine(meres)},peres:function(){return prochaine(peres)}};
+  var y=t.getFullYear(),m=meres(y),pe=peres(y),auto;
+  if(t.getMonth()>=10)auto="noel";
+  else if(t>=new Date(y,m.getMonth(),m.getDate()-21)&&t<=m)auto="meres";
+  else if(t>m&&t<=pe)auto="peres";
+  else auto="anniv";
+  /* Un choix fait à la main est retenu 3 semaines, puis le thème suit à nouveau le calendrier. */
+  var o="";try{var v=(localStorage.getItem("occ")||"").split("|");if(+v[1]>Date.now()-21*864e5)o=v[0]}catch(e){}
+  if(!/^(noel|anniv|meres|peres)$/.test(o))o=auto;
+  document.documentElement.setAttribute("data-occasion",o);
+})();</script>
 <style>
 html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 
-/* Thèmes : Noël (sapin, rouge, or) et Anniversaire (violet, corail, soleil), clair et sombre */
+/* Thèmes : Noël (sapin, rouge, or), Anniversaires (violet, corail, soleil), Fête des mères (framboise, sauge, pêche), Fête des pères (bleu marine, moutarde, canard) ; clair et sombre */
 :root,:root[data-occasion="noel"]{
   --bg:#F6F1E8; --surface:#FFFFFF; --fg:#1F1A17; --muted:#665D55; --line:#E5DBCD;
   --accent:#1E5B43; --accent-ink:#FFFFFF; --accent-soft:#DCECE3;
@@ -25,6 +43,18 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
   --ribbon:#C23C2A; --ribbon-soft:#FCE4DE; --gold:#B57C0E; --gold-soft:#FBEFCF; --link:#6337B0;
   --paper:#FDF8F6;
 }
+:root[data-occasion="meres"]{
+  --bg:#FCF2F3; --surface:#FFFFFF; --fg:#2A1A1F; --muted:#6F5A61; --line:#F0DCDF;
+  --accent:#A8295A; --accent-ink:#FFFFFF; --accent-soft:#FBE1EA;
+  --ribbon:#4F7B5B; --ribbon-soft:#E2EEE4; --gold:#B8682A; --gold-soft:#FBEADB; --link:#A8295A;
+  --paper:#FEF8F8;
+}
+:root[data-occasion="peres"]{
+  --bg:#F0F3F7; --surface:#FFFFFF; --fg:#141C28; --muted:#556274; --line:#D8E0EA;
+  --accent:#1F4E8C; --accent-ink:#FFFFFF; --accent-soft:#DFE8F5;
+  --ribbon:#94650A; --ribbon-soft:#F6EBD0; --gold:#2B7A78; --gold-soft:#DCEFEE; --link:#1F4E8C;
+  --paper:#F8FAFC;
+}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]),:root:not([data-theme="light"])[data-occasion="noel"]{
     --bg:#121110; --surface:#1D1A17; --fg:#F2ECE4; --muted:#A99E92; --line:#352E28;
@@ -36,6 +66,16 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
     --accent:#B99CF2; --accent-ink:#1A0F2E; --accent-soft:#2E2343;
     --ribbon:#FF8C78; --ribbon-soft:#41231E; --gold:#F2C14E; --gold-soft:#3A2F14; --link:#C9B1F7;
     --paper:#1A1521; color-scheme:dark}
+  :root:not([data-theme="light"])[data-occasion="meres"]{
+    --bg:#170F12; --surface:#22171B; --fg:#F6EAEE; --muted:#B39EA6; --line:#3B2830;
+    --accent:#F08AAE; --accent-ink:#2A0D18; --accent-soft:#43202D;
+    --ribbon:#8CC79A; --ribbon-soft:#1F3526; --gold:#F0B27A; --gold-soft:#3B2817; --link:#F5A3C0;
+    --paper:#1D1418; color-scheme:dark}
+  :root:not([data-theme="light"])[data-occasion="peres"]{
+    --bg:#0E131B; --surface:#172030; --fg:#E8EEF6; --muted:#9AA8BA; --line:#2A3648;
+    --accent:#8DB4EE; --accent-ink:#0C1A2E; --accent-soft:#1F3150;
+    --ribbon:#E5B44B; --ribbon-soft:#3A2E14; --gold:#6CC9C4; --gold-soft:#173533; --link:#A9C7F3;
+    --paper:#131A26; color-scheme:dark}
 }
 :root[data-theme="dark"],:root[data-theme="dark"][data-occasion="noel"]{
   --bg:#121110; --surface:#1D1A17; --fg:#F2ECE4; --muted:#A99E92; --line:#352E28;
@@ -47,6 +87,16 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
   --accent:#B99CF2; --accent-ink:#1A0F2E; --accent-soft:#2E2343;
   --ribbon:#FF8C78; --ribbon-soft:#41231E; --gold:#F2C14E; --gold-soft:#3A2F14; --link:#C9B1F7;
   --paper:#1A1521; color-scheme:dark}
+:root[data-theme="dark"][data-occasion="meres"]{
+  --bg:#170F12; --surface:#22171B; --fg:#F6EAEE; --muted:#B39EA6; --line:#3B2830;
+  --accent:#F08AAE; --accent-ink:#2A0D18; --accent-soft:#43202D;
+  --ribbon:#8CC79A; --ribbon-soft:#1F3526; --gold:#F0B27A; --gold-soft:#3B2817; --link:#F5A3C0;
+  --paper:#1D1418; color-scheme:dark}
+:root[data-theme="dark"][data-occasion="peres"]{
+  --bg:#0E131B; --surface:#172030; --fg:#E8EEF6; --muted:#9AA8BA; --line:#2A3648;
+  --accent:#8DB4EE; --accent-ink:#0C1A2E; --accent-soft:#1F3150;
+  --ribbon:#E5B44B; --ribbon-soft:#3A2E14; --gold:#6CC9C4; --gold-soft:#173533; --link:#A9C7F3;
+  --paper:#131A26; color-scheme:dark}
 :root{--display:"Fraunces", Georgia, "Times New Roman", serif; --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif}
 
 *{box-sizing:border-box}
@@ -57,8 +107,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px
 
 /* Barre du haut : choix de l'occasion + compte */
 .topbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding-block:16px 12px}
-.occ{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:3px;gap:2px}
-.occ button{border:0;border-radius:99px;background:transparent;color:var(--muted);font-weight:700;padding:6px 14px;display:inline-flex;gap:6px;align-items:center}
+.occ{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:3px;gap:2px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.occ button{border:0;border-radius:99px;background:transparent;color:var(--muted);font-weight:700;padding:6px 14px;display:inline-flex;gap:6px;align-items:center;white-space:nowrap;flex:none}
+.occ .s{display:none}
+@media (max-width:600px){.occ button{padding:6px 10px}.occ .l{display:none}.occ .s{display:inline}}
 .occ button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .acct{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
 .who-l{font-size:14px;color:var(--muted);font-weight:700}
@@ -68,13 +120,16 @@ body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px
 .hero{position:relative;overflow:hidden;border-radius:18px;background-color:var(--surface);border:1px solid var(--line);padding:30px 128px 86px 28px;isolation:isolate}
 :root[data-occasion="noel"] .hero{background-image:radial-gradient(color-mix(in srgb,var(--accent) 13%,transparent) 1.6px,transparent 2px);background-size:22px 22px}
 :root[data-occasion="anniv"] .hero{background-image:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--gold) 12%,transparent) 0 10px,transparent 10px 26px)}
+:root[data-occasion="meres"] .hero{background-image:radial-gradient(color-mix(in srgb,var(--accent) 14%,transparent) 2px,transparent 2.6px),radial-gradient(color-mix(in srgb,var(--ribbon) 16%,transparent) 2px,transparent 2.6px);background-size:26px 26px;background-position:0 0,13px 13px}
+:root[data-occasion="peres"] .hero{background-image:repeating-linear-gradient(0deg,color-mix(in srgb,var(--accent) 7%,transparent) 0 7px,transparent 7px 30px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--accent) 7%,transparent) 0 7px,transparent 7px 30px)}
 .hero::before,.hero::after{content:"";position:absolute;z-index:-1;background:var(--ribbon);box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--fg) 8%,transparent)}
 .hero::before{top:0;bottom:0;right:60px;width:24px}
 .hero::after{left:0;right:0;bottom:40px;height:24px}
 .bow{position:absolute;right:12px;bottom:12px;width:120px;height:80px;color:var(--ribbon);z-index:1;filter:drop-shadow(0 2px 2px color-mix(in srgb,var(--fg) 18%,transparent))}
 .deco{position:absolute;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none}
 @media (max-width:860px){.deco{display:none}}
-:root[data-occasion="noel"] .deco-anniv,:root[data-occasion="anniv"] .deco-noel{display:none}
+.deco>g[class^="deco-"]{display:none}
+:root[data-occasion="noel"] .deco-noel,:root[data-occasion="anniv"] .deco-anniv,:root[data-occasion="meres"] .deco-meres,:root[data-occasion="peres"] .deco-peres{display:inline}
 .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ribbon);font-weight:700;display:flex;align-items:center;gap:6px}
 h1{font-family:var(--display);font-weight:800;font-size:clamp(32px,6.4vw,54px);line-height:1.02;margin:8px 0 8px;text-wrap:balance;letter-spacing:-.01em}
 h1 em{font-style:italic;color:var(--accent)}
@@ -104,7 +159,11 @@ button.gift-btn{background:var(--ribbon);color:#fff;border-color:var(--ribbon);f
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.gift-btn{color:#1a0d0f}}
 button.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:6px 9px}
 button.ghost:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 5%,transparent)}
-button.danger{color:var(--ribbon)}
+button.danger{color:var(--danger,var(--ribbon))}
+:root[data-occasion="meres"]{--danger:var(--accent)}
+:root[data-occasion="peres"]{--danger:#B3261E}
+:root[data-theme="dark"][data-occasion="peres"]{--danger:#F2877E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"])[data-occasion="peres"]{--danger:#F2877E}}
 button:disabled{opacity:.5;cursor:not-allowed}
 
 main{padding-block:24px 64px}
@@ -211,7 +270,9 @@ form.add .row{grid-column:1/-1;display:flex;gap:8px;justify-content:space-betwee
   <div class="topbar">
     <div class="occ" role="group" aria-label="Occasion">
       <button type="button" data-occ="noel" aria-pressed="false"><span class="ico" data-i="tree"></span>Noël</button>
-      <button type="button" data-occ="anniv" aria-pressed="false"><span class="ico" data-i="cake"></span>Anniversaires</button>
+      <button type="button" data-occ="anniv" aria-pressed="false"><span class="ico" data-i="cake"></span><span class="l">Anniversaires</span><span class="s">Anniv.</span></button>
+      <button type="button" data-occ="meres" aria-pressed="false"><span class="ico" data-i="heart"></span><span class="l">Fête des mères</span><span class="s">Mères</span></button>
+      <button type="button" data-occ="peres" aria-pressed="false"><span class="ico" data-i="tie"></span><span class="l">Fête des pères</span><span class="s">Pères</span></button>
     </div>
     <div class="acct" id="acct" aria-live="polite"></div>
   </div>
@@ -219,6 +280,9 @@ form.add .row{grid-column:1/-1;display:flex;gap:8px;justify-content:space-betwee
   <header class="hero">
     <svg class="deco" viewBox="0 0 1000 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
       <defs>
+        <path id="heart" d="M0 8C-6 4-10 0-10-4a5 5 0 0 1 10-1 5 5 0 0 1 10 1c0 4-4 8-10 12z"/>
+        <g id="flower"><circle cx="0" cy="-6" r="5"/><circle cx="5.7" cy="-1.9" r="5"/><circle cx="3.5" cy="4.9" r="5"/><circle cx="-3.5" cy="4.9" r="5"/><circle cx="-5.7" cy="-1.9" r="5"/><circle r="3.6" fill="var(--gold)"/></g>
+        <path id="star" d="m0-10 2.9 6 6.6.9-4.8 4.6 1.2 6.5L0 4.9-5.9 8l1.1-6.5-4.7-4.6 6.6-.9z"/>
         <g id="flake" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M0-10V10M-8.7-5 8.7 5M-8.7 5 8.7-5M0-10l-3-3M0-10l3-3M0 10l-3 3M0 10l3 3"/></g>
       </defs>
       <g class="deco-noel" style="color:var(--accent)">
@@ -236,6 +300,23 @@ form.add .row{grid-column:1/-1;display:flex;gap:8px;justify-content:space-betwee
         <rect class="tw" x="900" y="40" width="16" height="6" rx="2" fill="var(--gold)" transform="rotate(60 908 43)"/>
         <rect class="tw" x="810" y="200" width="12" height="5" rx="2" fill="var(--gold)" transform="rotate(-45 816 202)"/>
         <circle class="tw" cx="840" cy="80" r="5" fill="var(--accent)"/><circle class="tw" cx="920" cy="180" r="4" fill="var(--ribbon)"/><circle class="tw" cx="700" cy="44" r="3.5" fill="var(--gold)"/>
+      </g>
+      <g class="deco-meres">
+        <use class="tw" href="#flower" transform="translate(830 50) scale(1.3)" fill="var(--accent)" opacity=".55"/>
+        <use class="tw" href="#flower" transform="translate(900 170) scale(.9)" fill="var(--accent)" opacity=".4"/>
+        <use class="tw" href="#flower" transform="translate(690 36) scale(.7)" fill="var(--ribbon)" opacity=".45"/>
+        <use class="tw" href="#heart" transform="translate(880 100) scale(.9)" fill="var(--accent)" opacity=".5"/>
+        <use class="tw" href="#heart" transform="translate(800 200) scale(.7)" fill="var(--gold)" opacity=".5"/>
+        <use class="tw" href="#heart" transform="translate(950 50) scale(.6)" fill="var(--ribbon)" opacity=".45"/>
+        <circle class="tw" cx="770" cy="28" r="3.5" fill="var(--gold)"/>
+      </g>
+      <g class="deco-peres">
+        <use class="tw" href="#star" transform="translate(830 50) scale(1.3)" fill="var(--ribbon)" opacity=".6"/>
+        <use class="tw" href="#star" transform="translate(900 160) scale(.9)" fill="var(--accent)" opacity=".45"/>
+        <use class="tw" href="#star" transform="translate(690 34) scale(.7)" fill="var(--gold)" opacity=".55"/>
+        <use class="tw" href="#star" transform="translate(950 70) scale(.6)" fill="var(--accent)" opacity=".4"/>
+        <use class="tw" href="#star" transform="translate(800 200) scale(.7)" fill="var(--ribbon)" opacity=".45"/>
+        <circle class="tw" cx="870" cy="110" r="3.5" fill="var(--gold)"/><circle class="tw" cx="770" cy="30" r="3" fill="var(--accent)"/>
       </g>
     </svg>
     <div class="eyebrow" id="eyebrow"></div>
@@ -291,14 +372,17 @@ const ICONS={
   check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
   lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
+  heart:'<path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>',
+  tie:'<path d="M9.5 3h5l-1.2 3.2L15.5 16 12 21l-3.5-5 2.2-9.8z"/><path d="M10.7 6.2h2.6"/>',
   star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'
 };
 function ico(n){const s=document.createElement("span");s.className="ico";s.setAttribute("aria-hidden","true");s.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+ICONS[n]+'</svg>';return s}
 document.querySelectorAll(".ico[data-i]").forEach(e=>e.replaceWith(ico(e.dataset.i)));
-const OCC={noel:{label:"Noël",icon:"tree"},anniv:{label:"Anniversaire",icon:"cake"}};
+const OCC={noel:{label:"Noël",icon:"tree"},anniv:{label:"Anniversaire",icon:"cake"},meres:{label:"Fête des mères",icon:"heart"},peres:{label:"Fête des pères",icon:"tie"}};
+const POUR={noel:" pour Noël",anniv:" pour l'anniversaire",meres:" pour la fête des mères",peres:" pour la fête des pères"};
 S.occ=document.documentElement.getAttribute("data-occasion")||"noel";
 S.ui.filter=S.occ;
-document.querySelectorAll(".occ button").forEach(b=>b.addEventListener("click",()=>{S.occ=b.dataset.occ;S.ui.filter=S.occ;store("occ",S.occ);document.documentElement.setAttribute("data-occasion",S.occ);render()}));
+document.querySelectorAll(".occ button").forEach(b=>b.addEventListener("click",()=>{S.occ=b.dataset.occ;S.ui.filter=S.occ;store("occ",S.occ+"|"+Date.now());document.documentElement.setAttribute("data-occasion",S.occ);render()}));
 const MOIS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 const frDM=b=>{const[m,d]=b.split("-").map(Number);return (d===1?"1er":d)+" "+MOIS[m-1]};
 function daysUntil(mmdd){
@@ -320,21 +404,35 @@ function nextBirthdays(){
 }
 const names=ps=>ps.map(p=>p.name).join(" et ");
 
+const FETES=window.FETES||{meres:()=>new Date(NaN),peres:()=>new Date(NaN)};
+const daysTo=dt=>{const n=new Date();return Math.round((dt-new Date(n.getFullYear(),n.getMonth(),n.getDate()))/864e5)};
+const jourFr=dt=>"dimanche "+(dt.getDate()===1?"1er":dt.getDate())+" "+MOIS[dt.getMonth()];
+const HERO={
+  noel:{icon:"tree",title:["La hotte de la ","famille"],sub:"Chacun note ses envies, les autres choisissent en secret ce qu'ils déposent sous le sapin."},
+  anniv:{icon:"cake",title:["Les cadeaux de la ","famille"],sub:"Les envies de chacun pour son anniversaire, et qui offre quoi, sans gâcher la surprise."},
+  meres:{icon:"heart",title:["Bonne fête, ","maman"],sub:"Une attention pour les mamans : chacun propose des idées et choisit en secret ce qu'il offre."},
+  peres:{icon:"tie",title:["Bonne fête, ","papa"],sub:"Une attention pour les papas : chacun propose des idées et choisit en secret ce qu'il offre."}
+};
 function renderHero(){
   document.querySelectorAll(".occ button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.occ===S.occ?"true":"false"));
-  const noel=S.occ==="noel",y=new Date().getFullYear()+(new Date().getMonth()===11&&new Date().getDate()>25?1:0);
-  fill($("eyebrow"),ico(noel?"tree":"cake"),noel?"Noël "+y+" · en famille":"Anniversaires · en famille");
-  fill($("title"),noel?"La hotte de la ":"Les cadeaux de la ",h("em",{text:"famille"}));
-  $("sub").textContent=noel?"Chacun note ses envies, les autres choisissent en secret ce qu'ils déposent sous le sapin.":"Les envies de chacun pour son anniversaire, et qui offre quoi, sans gâcher la surprise.";
-  const xmas=daysUntil("12-25"),me=S.d&&S.d.me;
-  const cX=h("span",{class:"chip"+(xmas===0?" hot":"")},ico("tree"),xmas===0?"Joyeux Noël !":"Noël "+inDays(xmas));
-  let cB=null;
+  const o=S.occ,H=HERO[o]||HERO.noel,y=new Date().getFullYear()+(new Date().getMonth()===11&&new Date().getDate()>25?1:0);
+  const fm=FETES.meres(),fp=FETES.peres();
+  const eyebrow={noel:"Noël "+y+" · en famille",anniv:"Anniversaires · en famille",meres:"Fête des mères · "+jourFr(fm),peres:"Fête des pères · "+jourFr(fp)}[o];
+  fill($("eyebrow"),ico(H.icon),eyebrow);
+  fill($("title"),H.title[0],h("em",{text:H.title[1]}));
+  $("sub").textContent=H.sub;
+  const xmas=daysUntil("12-25"),me=S.d&&S.d.me,chips={};
+  chips.noel=h("span",{class:"chip"+(xmas===0?" hot":"")},ico("tree"),xmas===0?"Joyeux Noël !":"Noël "+inDays(xmas));
+  const fete=(k,dt,hot)=>{const n=daysTo(dt);if(!(o===k||n<=60))return null;
+    return h("span",{class:"chip"+(n===0?" hot":"")},ico(OCC[k].icon),n===0?hot:OCC[k].label+" "+inDays(n)+" · "+(dt.getDate()===1?"1er":dt.getDate())+" "+MOIS[dt.getMonth()])};
+  chips.meres=fete("meres",fm,"Bonne fête à toutes les mamans !");
+  chips.peres=fete("peres",fp,"Bonne fête à tous les papas !");
   if(me){
     const nb=nextBirthdays();
-    if(nb)cB=h("span",{class:"chip"+(nb.days===0?" hot":"")},ico("cake"),nb.days===0?"Joyeux anniversaire, "+names(nb.people)+" !":"Anniversaire de "+names(nb.people)+" "+inDays(nb.days)+" · "+frDM(nb.people[0].birthday));
-    else cB=h("button",{type:"button",class:"chip",onclick:()=>{S.ui.panel="bday";render()}},ico("cake"),"Ajouter les dates d'anniversaire");
+    if(nb)chips.anniv=h("span",{class:"chip"+(nb.days===0?" hot":"")},ico("cake"),nb.days===0?"Joyeux anniversaire, "+names(nb.people)+" !":"Anniversaire de "+names(nb.people)+" "+inDays(nb.days)+" · "+frDM(nb.people[0].birthday));
+    else chips.anniv=h("button",{type:"button",class:"chip",onclick:()=>{S.ui.panel="bday";render()}},ico("cake"),"Ajouter les dates d'anniversaire");
   }
-  fill($("chips"),noel?[cX,cB]:[cB,cX]);
+  fill($("chips"),[o,...["noel","anniv","meres","peres"].filter(k=>k!==o)].map(k=>chips[k]));
 }
 
 async function api(route,body){
@@ -487,7 +585,9 @@ function renderGifts(){
     h("select",{name:"occasion","aria-label":"Pour quelle occasion"},
       h("option",{value:"noel",selected:S.occ==="noel",text:"Noël"}),
       h("option",{value:"anniv",selected:S.occ==="anniv",text:"Anniversaire"}),
-      h("option",{value:"",text:"Les deux"})),
+      h("option",{value:"meres",selected:S.occ==="meres",text:"Fête des mères"}),
+      h("option",{value:"peres",selected:S.occ==="peres",text:"Fête des pères"}),
+      h("option",{value:"",text:"Toutes les occasions"})),
     h("div",{class:"row"},h("span",{class:"by",text:mine?"Visible par toute la famille":"Proposé par "+d.me.name+" · "+p.name+" ne la verra pas"}),h("button",{class:"primary",type:"submit"},"Ajouter l'idée")));
   form.dataset.pid=p.id;form.dataset.occ=S.occ;for(const n in keep)form[n].value=keep[n];
   const items=list.slice().sort((a,b)=>(!!a.reservedBy-!!b.reservedBy)||((a.createdAt||0)-(b.createdAt||0))).map(g=>giftCard(g,mine));
@@ -498,10 +598,10 @@ function renderGifts(){
       h("div",{},h("h2",{text:mine?"Mes envies":"Pour "+p.name}),
         p.birthday?h("p",{class:"p-sub"},ico("cake"),(mine?"Votre anniversaire : ":"Anniversaire : ")+frDM(p.birthday)+" · "+inDays(bd)):null),
       h("span",{class:"meta"},list.length+" idée"+(list.length>1?"s":"")+(!mine&&taken?" · "+taken+" déjà offerte"+(taken>1?"s":""):"")+(total?" · "+eur(total):""))),
-    h("div",{class:"filters",role:"group","aria-label":"Filtrer par occasion"},fbtn("noel","Noël","tree"),fbtn("anniv","Anniversaire","cake"),fbtn("","Tout")),
+    h("div",{class:"filters",role:"group","aria-label":"Filtrer par occasion"},...Object.entries(OCC).map(([k,v])=>fbtn(k,v.label,v.icon)),fbtn("","Tout")),
     form,
     mine&&d.hidden?h("p",{class:"secret"},ico("lock"),d.hidden+" idée"+(d.hidden>1?"s":"")+" ajoutée"+(d.hidden>1?"s":"")+" par la famille "+(d.hidden>1?"restent cachées":"reste cachée")+" pour garder la surprise."):null,
-    h("div",{class:"list"},items.length?items:h("div",{class:"empty"},ico("gift"),mine?"Notez ce qui vous ferait plaisir"+(f==="noel"?" pour Noël.":f==="anniv"?" pour votre anniversaire.":"."):"Pas encore d'idée pour "+p.name+(f==="noel"?" à Noël":f==="anniv"?" pour son anniversaire":"")+". Soyez le premier ou la première !")));
+    h("div",{class:"list"},items.length?items:h("div",{class:"empty"},ico("gift"),mine?"Notez ce qui vous ferait plaisir"+(f==="anniv"?" pour votre anniversaire":POUR[f]||"")+".":"Pas encore d'idée pour "+p.name+(f==="anniv"?" pour son anniversaire":POUR[f]||"")+". Soyez le premier ou la première !")));
   if(focus&&form[focus])form[focus].focus();
 }
 function giftCard(g,mine){
