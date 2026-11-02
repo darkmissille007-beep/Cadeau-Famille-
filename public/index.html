@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Cadeaux de la famille</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+
+/* Layout: bandeau montagne en tête, deux onglets (Cadeaux / Courses), colonne des personnes + liste principale */
+:root{
+  --bg:#EEF3F6; --surface:#FFFFFF; --fg:#13222B; --muted:#5A6D78; --line:#D3DDE3;
+  --pine:#1D5A48; --pine-ink:#FFFFFF; --pine-soft:#DCEBE5;
+  --berry:#B8324A; --berry-soft:#F6DDE2; --sky:#2F6E9E;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E171C; --surface:#16232A; --fg:#E5EEF2; --muted:#93A6B0; --line:#2A3B44;
+  --pine:#5FBF9D; --pine-ink:#0B1A15; --pine-soft:#1C3A31;
+  --berry:#F0798E; --berry-soft:#3D1F27; --sky:#7FB6E0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E171C; --surface:#16232A; --fg:#E5EEF2; --muted:#93A6B0; --line:#2A3B44;
+  --pine:#5FBF9D; --pine-ink:#0B1A15; --pine-soft:#1C3A31;
+  --berry:#F0798E; --berry-soft:#3D1F27; --sky:#7FB6E0; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{padding-block:28px 8px}
+.ridge{display:block;width:100%;height:46px;color:var(--pine);opacity:.9}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,6vw,46px);line-height:1.05;margin:6px 0 4px;text-wrap:balance}
+.sub{color:var(--muted);margin:0}
+.toprow{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+select,input,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}
+select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 13px}
+button.primary{background:var(--pine);color:var(--pine-ink);border-color:var(--pine);font-weight:700}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:6px 8px}
+button.ghost:hover{color:var(--fg)}
+button.danger{color:var(--berry)}
+button:disabled{opacity:.5;cursor:not-allowed}
+main{padding-block:22px 60px}
+.banner{background:var(--berry-soft);color:var(--fg);border-radius:10px;padding:12px 14px;margin-bottom:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner strong{color:var(--berry)}
+
+/* Cadeaux */
+.gifts{display:grid;grid-template-columns:240px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:760px){.gifts{grid-template-columns:minmax(0,1fr)}}
+.people{display:flex;flex-direction:column;gap:6px}
+@media (max-width:760px){.people{flex-direction:row;flex-wrap:wrap}}
+.person{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid transparent;background:transparent;font-weight:700}
+.person:hover{background:var(--surface)}
+.person[aria-current="true"]{background:var(--surface);border-color:var(--line);box-shadow:inset 3px 0 0 var(--berry)}
+.person .n{font-weight:400;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.addperson{display:flex;gap:6px;margin-top:8px}
+.addperson input{flex:1;width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+h2{font-family:var(--display);font-weight:800;font-size:28px;margin:0;text-wrap:balance}
+.meta{color:var(--muted);font-size:14px}
+form.add{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) 110px;gap:8px;margin:14px 0 20px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+form.add .full{grid-column:1/-1}
+form.add .row{grid-column:1/-1;display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+@media (max-width:560px){form.add{grid-template-columns:minmax(0,1fr) 100px}form.add .t{grid-column:1/-1}}
+.list{display:flex;flex-direction:column;gap:10px}
+.gift{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px}
+.gift.taken{opacity:.72}
+.gift .title{font-weight:700;font-size:17px;overflow-wrap:anywhere}
+.gift .price{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.gift .note{color:var(--muted);font-size:15px;grid-column:1/-1;overflow-wrap:anywhere}
+.gift .foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
+.gift a{color:var(--sky);overflow-wrap:anywhere}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;border-radius:99px;padding:3px 10px;background:var(--pine-soft);color:var(--pine)}
+.pill.r{background:var(--berry-soft);color:var(--berry)}
+.by{font-size:13px;color:var(--muted)}
+.empty{border:1.5px dashed var(--line);border-radius:12px;padding:22px;color:var(--muted);text-align:center}
+.secret{font-size:14px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:calc(100% - 32px)}
+
+
+/* Commun : compte, connexion, famille */
+.acct{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.who-l{font-size:14px;color:var(--muted);font-weight:700}
+.who-n{font-size:17px;margin-right:4px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:16px;display:flex;flex-direction:column;gap:12px}
+.panel h3{margin:0;font-family:var(--display);font-size:20px}
+.panel p{margin:0}
+.row-form{display:flex;flex-wrap:wrap;gap:8px}
+.row-form input{flex:1 1 160px;min-width:0}
+.fam-list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.fam-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.fam-name{font-weight:700}
+.fam-act{display:flex;gap:6px;flex-wrap:wrap}
+.code-note{background:var(--bg);border-radius:8px;padding:10px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.code-val{font-size:22px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+.gate{padding-block:28px 60px}
+.gate-card{max-width:460px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.gate-card h2{margin:0}
+.gate-card p{margin:0}
+.gate-names{display:flex;flex-wrap:wrap;gap:8px}
+.gate-names button{font-weight:700}
+.gate-form{display:flex;flex-direction:column;gap:8px}
+.gate-form label{font-size:14px;font-weight:700;color:var(--muted)}
+.gate-card.wide{max-width:560px}
+.su-head,.su-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 104px;gap:8px;align-items:center}
+.su-head span{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.su-row input{width:100%}
+.su-row input[id^="su-code"]{font-variant-numeric:tabular-nums;letter-spacing:.08em}
+.su-tag{font-size:12px;font-weight:700;color:var(--muted);text-align:center}
+.su-row .ghost{justify-self:center}
+@media (max-width:440px){.su-head,.su-row{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 40px}.su-tag{font-size:0}.su-tag::after{content:"★";font-size:16px}}
+.pill-off{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:1px 8px}
+.gate-names button:disabled{opacity:.45;cursor:not-allowed}
+.ec-form{flex-basis:100%}
+.ec-form input{font-variant-numeric:tabular-nums;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <svg class="ridge" viewBox="0 0 600 46" preserveAspectRatio="none" aria-hidden="true"><path fill="currentColor" d="M0 46 L70 18 L110 30 L170 4 L215 26 L260 12 L320 34 L380 8 L430 28 L480 16 L540 32 L600 20 L600 46Z" opacity=".25"/><path fill="currentColor" d="M0 46 L50 30 L120 40 L190 20 L250 38 L330 22 L400 40 L470 26 L540 40 L600 32 L600 46Z"/></svg>
+    <div class="toprow">
+      <div>
+        <div class="eyebrow">Idées cadeaux · famille</div>
+        <h1>Cadeaux de la famille</h1>
+        <p class="sub">Les envies de chacun, et qui offre quoi, sans gâcher la surprise.</p>
+      </div>
+      <div class="acct" id="acct" aria-live="polite"></div>
+    </div>
+    <div class="panel" id="panel" hidden></div>
+  </header>
+
+  <main>
+    <div id="status" class="banner" hidden></div>
+    <section id="gate" class="gate"><div class="empty">Chargement de la liste…</div></section>
+    <section id="app" hidden style="margin-top:22px">
+      <div class="gifts">
+        <aside><div class="people" id="people"></div></aside>
+        <div id="gift-panel"></div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+/* ---------- Commun : session, appels au serveur, connexion, gestion de la famille ---------- */
+const $=id=>document.getElementById(id);
+function fill(el,...k){el.replaceChildren(...k.flat().filter(x=>x!=null&&x!==false))}
+function h(tag,attrs,...kids){const e=document.createElement(tag);for(const k in attrs||{}){const v=attrs[k];if(v==null||v===false)continue;if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(k==="text")e.textContent=v;else e.setAttribute(k,v===true?"":v)}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(c))}return e}
+function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function load(k){try{return localStorage.getItem(k)||""}catch(e){return ""}}
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,4000)}
+const FAMILLE=["Paul","Laurence","Vincent","Jade","Ethen","Zoé","Chiara"];
+const S={tok:load("tok"),d:null,ui:{panel:"",pick:"",lastCode:null,confirm:null},sel:""};
+const pname=id=>((S.d&&S.d.people.find(p=>p.id===id))||{}).name||"Quelqu'un";
+const isMe=id=>!!(S.d&&S.d.me&&S.d.me.id===id);
+function genCode(){const a=new Uint32Array(1);crypto.getRandomValues(a);return String(100000+a[0]%900000)}
+function setTok(t){S.tok=t||"";store("tok",S.tok)}
+
+async function api(route,body){
+  let r;
+  try{r=await fetch("/api/"+route,{method:body?"POST":"GET",headers:Object.assign({"content-type":"application/json"},S.tok?{authorization:"Bearer "+S.tok}:{}),body:body?JSON.stringify(body):undefined})}
+  catch(e){throw new Error("Pas de connexion au site. Vérifiez votre réseau.")}
+  let d={};try{d=await r.json()}catch(e){}
+  if(r.status===401&&route==="action"){setTok("");refresh()}
+  if(!r.ok)throw new Error(d.error||"Le serveur ne répond pas (erreur "+r.status+").");
+  return d;
+}
+async function refresh(){
+  try{const d=await api("state");if(S.tok&&!d.me)setTok("");S.d=d;$("status").hidden=true;render()}
+  catch(e){$("status").hidden=false;fill($("status"),h("strong",{text:"Liste indisponible."})," "+e.message)}
+}
+async function act(body,msg){try{const r=await api("action",body);if(r.token)setTok(r.token);if(msg)toast(msg);await refresh();return r}catch(e){toast(e.message);return null}}
+function askConfirm(key){if(S.ui.confirm===key){S.ui.confirm=null;return true}S.ui.confirm=key;render();setTimeout(()=>{if(S.ui.confirm===key){S.ui.confirm=null;render()}},4000);return false}
+function needMe(){return !(S.d&&S.d.me)}
+
+function renderGate(){
+  const d=S.d,box=$("gate");
+  if(d.needsSetup){
+    if(!S.ui.setup)S.ui.setup=FAMILLE.map(name=>({name,code:genCode()}));
+    const rows=S.ui.setup;
+    const field=(i,k,attrs)=>h("input",Object.assign({id:"su-"+k+i,value:rows[i][k],maxlength:k==="name"?"40":"12",oninput:e=>{rows[i][k]=e.target.value}},attrs));
+    fill(box,h("div",{class:"gate-card wide"},
+      h("h2",{text:"Première configuration"}),
+      h("p",{class:"meta",text:"La famille est déjà inscrite. Un code est proposé pour chacun : gardez-le ou tapez le vôtre. Un code laissé vide pourra être donné plus tard."}),
+      h("form",{class:"gate-form",onsubmit:async e=>{e.preventDefault();try{const r=await api("setup",{people:rows.map(x=>({name:x.name.trim(),code:x.code.trim()}))});setTok(r.token);S.ui.setup=null;S.ui.panel="fam";await refresh();toast("Accès créés. Transmettez à chacun son code.")}catch(err){toast(err.message)}}},
+        h("div",{class:"su-head","aria-hidden":"true"},h("span",{text:"Prénom"}),h("span",{text:"Code"}),h("span")),
+        ...rows.map((r,i)=>h("div",{class:"su-row"},
+          field(i,"name",{"aria-label":"Prénom, ligne "+(i+1),required:true}),
+          field(i,"code",{"aria-label":"Code de "+(r.name||"cette personne"),inputmode:"numeric",pattern:"[0-9]*",autocomplete:"off",placeholder:i===0?"Obligatoire":"Plus tard"}),
+          i===0?h("span",{class:"su-tag",text:"Organisateur"}):h("button",{type:"button",class:"ghost danger","aria-label":"Retirer "+(r.name||"cette ligne"),onclick:()=>{rows.splice(i,1);render()}},"×"))),
+        h("button",{type:"button",class:"ghost",onclick:()=>{rows.push({name:"",code:genCode()});render();$("su-name"+(rows.length-1)).focus()}},"+ Ajouter une personne"),
+        h("p",{class:"meta",text:"La première ligne est l'organisateur : il pourra ensuite ajouter, retirer et redonner des codes."}),
+        h("button",{class:"primary",type:"submit"},"Créer les accès"))));
+    return;
+  }
+  const admin=d.people.find(p=>p.isAdmin);
+  const pick=d.people.find(p=>p.id===S.ui.pick);
+  fill(box,h("div",{class:"gate-card"},
+    h("h2",{text:"Qui êtes-vous ?"}),
+    h("div",{class:"gate-names"},...d.people.map(p=>h("button",{type:"button",class:p.id===S.ui.pick?"primary":"","aria-pressed":p.id===S.ui.pick?"true":"false",disabled:!p.hasCode,title:p.hasCode?null:"Pas encore de code",onclick:()=>{S.ui.pick=p.id;render();setTimeout(()=>$("gl-code")&&$("gl-code").focus())}},p.name))),
+    pick?h("form",{class:"gate-form",onsubmit:async e=>{e.preventDefault();try{const r=await api("login",{personId:pick.id,code:$("gl-code").value});setTok(r.token);S.sel="";await refresh()}catch(err){toast(err.message)}}},
+      h("label",{for:"gl-code",text:"Code de "+pick.name}),
+      h("input",{id:"gl-code",inputmode:"numeric",pattern:"[0-9]*",enterkeyhint:"done",type:"password",maxlength:"12",required:true,autocomplete:"current-password"}),
+      h("button",{class:"primary",type:"submit"},"Entrer")):null,
+    h("p",{class:"meta",text:"Pas encore de code ? Demandez-le à "+(admin?admin.name:"l'organisateur")+"."})));
+}
+function renderAccount(){
+  const box=$("acct"),me=S.d&&S.d.me;
+  if(!me){fill(box);return}
+  const tog=p=>()=>{S.ui.panel=S.ui.panel===p?"":p;S.ui.lastCode=null;render()};
+  fill(box,h("span",{class:"who-l",text:"Connecté :"}),h("strong",{class:"who-n",text:me.name}),
+    me.isAdmin?h("button",{type:"button",class:"ghost","aria-expanded":S.ui.panel==="fam"?"true":"false",onclick:tog("fam")},"Gérer la famille"):null,
+    h("button",{type:"button",class:"ghost","aria-expanded":S.ui.panel==="code"?"true":"false",onclick:tog("code")},"Mon code"),
+    h("button",{type:"button",class:"ghost",onclick:()=>{setTok("");S.ui.panel="";refresh()}},"Se déconnecter"));
+}
+function renderPanel(){
+  const box=$("panel"),d=S.d,me=d&&d.me;
+  if(!me||!S.ui.panel){box.hidden=true;fill(box);return}
+  box.hidden=false;
+  if(S.ui.panel==="code"){
+    fill(box,h("h3",{text:"Changer mon code"}),
+      h("form",{class:"row-form",onsubmit:async e=>{e.preventDefault();const code=$("my-code").value.trim();if(!/^[0-9]{4,12}$/.test(code)){toast("Le code doit faire 4 à 12 chiffres.");return}if(await act({type:"setCode",id:me.id,code},"Code changé. Vos autres appareils devront se reconnecter.")){S.ui.panel="";render()}}},
+        h("input",{id:"my-code",inputmode:"numeric",pattern:"[0-9]*",enterkeyhint:"done",type:"password",placeholder:"Nouveau code",maxlength:"12",autocomplete:"new-password","aria-label":"Nouveau code"}),
+        h("button",{class:"primary",type:"submit"},"Enregistrer")));
+    return;
+  }
+  const last=S.ui.lastCode;
+  fill(box,h("h3",{text:"La famille"}),
+    h("p",{class:"meta",text:"Chaque personne entre avec son prénom et son code. Transmettez le code en privé (SMS, de vive voix)."}),
+    last?h("p",{class:"code-note"},"Code de "+last.name+" : ",h("strong",{class:"code-val",text:last.code}),h("button",{type:"button",class:"ghost",onclick:async()=>{try{await navigator.clipboard.writeText(last.code);toast("Code copié.")}catch(e){toast("Copie impossible : notez le code.")}}},"Copier")):null,
+    h("div",{class:"fam-list"},...d.people.map(p=>{const k="rm:"+p.id;return h("div",{class:"fam-row"},
+      h("span",{class:"fam-name"},p.name+(p.isAdmin?" · organisateur":""),p.hasCode?null:h("span",{class:"pill-off",text:"pas encore de code"})),
+      h("span",{class:"fam-act"},
+        p.id!==me.id&&S.ui.editCode!==p.id?h("button",{type:"button",class:p.hasCode?"":"primary",onclick:()=>{S.ui.editCode=p.id;S.ui.ecVal="";S.ui.lastCode=null;render();setTimeout(()=>{const i=$("ec-"+p.id);if(i){i.focus();i.select()}})}},p.hasCode?"Changer le code":"Donner un code"):null,
+        p.id!==me.id&&S.ui.editCode!==p.id?h("button",{type:"button",class:"ghost danger",onclick:()=>{if(askConfirm(k))act({type:"removePerson",id:p.id},p.name+" a été retiré.")}},S.ui.confirm===k?"Confirmer":"Retirer"):null),
+      S.ui.editCode===p.id?h("form",{class:"row-form ec-form",onsubmit:async e=>{e.preventDefault();const code=$("ec-"+p.id).value.trim();if(!/^[0-9]{4,12}$/.test(code)){toast("Le code doit faire 4 à 12 chiffres.");return}
+          if(await act({type:"setCode",id:p.id,code},"Code de "+p.name+" changé.")){S.ui.editCode=null;S.ui.ecVal="";S.ui.lastCode={name:p.name,code};render()}}},
+        h("input",{id:"ec-"+p.id,inputmode:"numeric",pattern:"[0-9]*",enterkeyhint:"done",value:S.ui.ecVal||(S.ui.ecVal=genCode()),oninput:e=>{S.ui.ecVal=e.target.value},maxlength:"12",autocomplete:"off","aria-label":"Nouveau code de "+p.name}),
+        h("button",{class:"primary",type:"submit"},"Enregistrer"),
+        h("button",{type:"button",class:"ghost",onclick:()=>{S.ui.editCode=null;render()}},"Annuler")):null)})),
+    h("form",{class:"row-form",onsubmit:async e=>{e.preventDefault();const name=$("np-name").value.trim(),code=$("np-code").value.trim();if(!name)return;if(await act({type:"addPerson",name,code})){S.ui.lastCode={name,code};$("np-name").value="";render()}}},
+      h("input",{id:"np-name",placeholder:"Prénom",maxlength:"40",required:true,"aria-label":"Prénom à ajouter"}),
+      h("input",{id:"np-code",inputmode:"numeric",pattern:"[0-9]*",enterkeyhint:"done",value:genCode(),maxlength:"12","aria-label":"Son code"}),
+      h("button",{class:"primary",type:"submit"},"Ajouter")));
+}
+function render(){
+  const d=S.d,inside=!!(d&&d.me);
+  $("gate").hidden=!d||inside;$("app").hidden=!inside;
+  renderAccount();renderPanel();
+  if(!d)return;
+  if(!inside){renderGate();return}
+  renderApp();
+}
+setInterval(()=>{if(document.hidden)return;const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return;refresh()},8000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh()});
+
+const eur=n=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:n%1?2:0}).format(n);
+const giftsFor=pid=>S.d.gifts.filter(g=>g.for===pid);
+
+function renderApp(){
+  const d=S.d;
+  if(S.sel&&!d.people.some(p=>p.id===S.sel))S.sel="";
+  if(!S.sel)S.sel=d.me.id;
+  fill($("people"),...d.people.map(p=>h("button",{class:"person","aria-current":p.id===S.sel?"true":"false",onclick:()=>{S.sel=p.id;render()}},
+    h("span",{text:p.name+(isMe(p.id)?" (moi)":"")}),h("span",{class:"n",text:String(giftsFor(p.id).length+(isMe(p.id)?d.hidden:0))}))));
+  renderGifts();
+}
+function renderGifts(){
+  const d=S.d,panel=$("gift-panel"),p=d.people.find(x=>x.id===S.sel);
+  if(!p){fill(panel);return}
+  const mine=isMe(p.id),list=giftsFor(p.id);
+  const total=list.reduce((s,g)=>s+(+g.price||0),0);
+  const old=panel.querySelector("form.add");const keep={};let focus=null;
+  if(old&&old.dataset.pid===p.id){for(const n of ["title","link","price","note"])keep[n]=old[n].value;if(old.contains(document.activeElement))focus=document.activeElement.name}
+  const form=h("form",{class:"add",onsubmit:async e=>{e.preventDefault();const f=e.target;const title=f.title.value.trim();if(!title)return;
+      const ok=await act({type:"addGift",for:p.id,title,link:f.link.value.trim(),price:f.price.value.replace(/[^\d,.]/g,""),note:f.note.value.trim()},mine?"Idée ajoutée à votre liste.":"Idée ajoutée pour "+p.name+".");
+      if(ok){const nf=$("gift-panel").querySelector("form.add");if(nf)nf.reset()}}},
+    h("input",{class:"t",name:"title",placeholder:mine?"Une idée pour moi…":"Une idée pour "+p.name+"…",maxlength:"120",required:true,"aria-label":"Idée cadeau"}),
+    h("input",{name:"link",placeholder:"Lien (facultatif)",type:"url",maxlength:"500","aria-label":"Lien"}),
+    h("input",{name:"price",placeholder:"Prix €",inputmode:"decimal",enterkeyhint:"done",maxlength:"10","aria-label":"Prix en euros"}),
+    h("input",{class:"full",name:"note",placeholder:"Précision : taille, couleur, où l'acheter…",maxlength:"300","aria-label":"Précision"}),
+    h("div",{class:"row"},h("span",{class:"by",text:"Proposé par "+d.me.name}),h("button",{class:"primary",type:"submit"},"Ajouter l'idée")));
+  form.dataset.pid=p.id;for(const n in keep)form[n].value=keep[n];
+  const items=list.slice().sort((a,b)=>(!!a.reservedBy-!!b.reservedBy)||((a.createdAt||0)-(b.createdAt||0))).map(g=>giftCard(g,mine));
+  fill(panel,
+    h("div",{class:"panel-h"},h("h2",{text:mine?"Mes envies":"Pour "+p.name}),h("span",{class:"meta"},list.length+" idée"+(list.length>1?"s":"")+(total?" · "+eur(total)+" au total":""))),
+    form,
+    mine&&d.hidden?h("p",{class:"secret",text:d.hidden+" idée"+(d.hidden>1?"s":"")+" ajoutée"+(d.hidden>1?"s":"")+" par la famille "+(d.hidden>1?"restent cachées":"reste cachée")+" pour garder la surprise."}):null,
+    h("div",{class:"list"},items.length?items:h("div",{class:"empty",text:mine?"Notez ce qui vous ferait plaisir.":"Pas encore d'idée pour "+p.name+". Soyez le premier ou la première !"})));
+  if(focus&&form[focus])form[focus].focus();
+}
+function giftCard(g,mine){
+  const me=S.d.me,k="del:"+g.id;
+  const status=!mine&&g.reservedBy?h("span",{class:"pill r",text:isMe(g.reservedBy)?"Je l'offre":"Offert par "+pname(g.reservedBy)}):null;
+  const canDel=g.addedBy===me.id||me.isAdmin;
+  const actions=h("div",{},
+    !mine&&!g.reservedBy?h("button",{onclick:()=>act({type:"reserve",id:g.id},"C'est noté : vous l'offrez.")},"Je l'offre"):null,
+    !mine&&g.reservedBy&&(isMe(g.reservedBy)||me.isAdmin)?h("button",{class:"ghost",onclick:()=>act({type:"unreserve",id:g.id})},"Annuler"):null,
+    canDel?h("button",{class:"ghost danger",onclick:()=>{if(askConfirm(k))act({type:"deleteGift",id:g.id},"Idée supprimée.")}},S.ui.confirm===k?"Confirmer la suppression":"Supprimer"):null);
+  const link=/^https?:\/\//i.test(g.link||"")?h("a",{href:g.link,target:"_blank",rel:"noopener noreferrer",text:(()=>{try{return new URL(g.link).hostname.replace(/^www\./,"")}catch(e){return "Voir le lien"}})()}):null;
+  return h("article",{class:"gift"+(g.reservedBy&&!mine?" taken":"")},
+    h("div",{class:"title",text:g.title}),
+    h("div",{class:"price",text:g.price?eur(+g.price):""}),
+    g.note||link?h("div",{class:"note"},g.note||"",g.note&&link?" · ":"",link):null,
+    h("div",{class:"foot"},h("div",{style:"display:flex;gap:8px;align-items:center;flex-wrap:wrap"},status,h("span",{class:"by",text:g.addedBy===g.for?"Son idée":"Idée de "+pname(g.addedBy)})),actions));
+}
+refresh();
+})();
+</script>
+
+</body>
+</html>
