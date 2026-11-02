@@ -59,7 +59,7 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
   :root:not([data-theme="light"]),:root:not([data-theme="light"])[data-occasion="noel"]{
     --bg:#121110; --surface:#1D1A17; --fg:#F2ECE4; --muted:#A99E92; --line:#352E28;
     --accent:#6CC59D; --accent-ink:#0C1A13; --accent-soft:#1C3A2C;
-    --ribbon:#F07A8A; --ribbon-soft:#3E1F25; --gold:#E3B865; --gold-soft:#382C16; --link:#8AD5B2;
+    --ribbon:#D4313F; --ribbon-soft:#3E1A1E; --gold:#E3B865; --gold-soft:#382C16; --link:#8AD5B2;
     --paper:#191714; color-scheme:dark}
   :root:not([data-theme="light"])[data-occasion="anniv"]{
     --bg:#13101A; --surface:#1E1826; --fg:#F1EAF5; --muted:#A698B0; --line:#352B3F;
@@ -80,7 +80,7 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 :root[data-theme="dark"],:root[data-theme="dark"][data-occasion="noel"]{
   --bg:#121110; --surface:#1D1A17; --fg:#F2ECE4; --muted:#A99E92; --line:#352E28;
   --accent:#6CC59D; --accent-ink:#0C1A13; --accent-soft:#1C3A2C;
-  --ribbon:#F07A8A; --ribbon-soft:#3E1F25; --gold:#E3B865; --gold-soft:#382C16; --link:#8AD5B2;
+  --ribbon:#D4313F; --ribbon-soft:#3E1A1E; --gold:#E3B865; --gold-soft:#382C16; --link:#8AD5B2;
   --paper:#191714; color-scheme:dark}
 :root[data-theme="dark"][data-occasion="anniv"]{
   --bg:#13101A; --surface:#1E1826; --fg:#F1EAF5; --muted:#A698B0; --line:#352B3F;
@@ -118,7 +118,20 @@ body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px
 
 /* Bandeau : un paquet cadeau avec son ruban et son nœud */
 .hero{position:relative;overflow:hidden;border-radius:18px;background-color:var(--surface);border:1px solid var(--line);padding:30px 128px 86px 28px;isolation:isolate}
-:root[data-occasion="noel"] .hero{background-image:radial-gradient(color-mix(in srgb,var(--accent) 13%,transparent) 1.6px,transparent 2px);background-size:22px 22px}
+:root[data-occasion="noel"] .hero{background-color:#B01E30;border-color:#931827;color:#fff;
+  background-image:linear-gradient(90deg,rgba(176,30,48,.82),rgba(176,30,48,.82) 38%,rgba(176,30,48,0) 66%),radial-gradient(rgba(255,255,255,.9) 3px,transparent 3.6px),radial-gradient(rgba(255,255,255,.9) 3px,transparent 3.6px);
+  background-size:100% 100%,34px 34px,34px 34px;background-position:0 0,0 0,17px 17px}
+@media (max-width:600px){:root[data-occasion="noel"] .hero{background-image:linear-gradient(90deg,rgba(176,30,48,.8),rgba(176,30,48,.8) 70%,rgba(176,30,48,.2)),radial-gradient(rgba(255,255,255,.9) 3px,transparent 3.6px),radial-gradient(rgba(255,255,255,.9) 3px,transparent 3.6px)}}
+:root[data-occasion="noel"] .hero::before,:root[data-occasion="noel"] .hero::after{background:#E2B045;box-shadow:inset 0 0 0 3px rgba(120,70,0,.18)}
+:root[data-occasion="noel"] .bow{color:#E2B045}
+:root[data-occasion="noel"] .hero .eyebrow{color:#FFE3A3}
+:root[data-occasion="noel"] .hero h1{color:#fff;text-shadow:0 2px 0 rgba(90,0,12,.35)}
+:root[data-occasion="noel"] .hero h1 em{color:#FFD36E}
+:root[data-occasion="noel"] .hero .sub{color:#fff;font-weight:700;text-shadow:0 1px 2px rgba(90,0,12,.6)}
+:root[data-occasion="noel"] .hero .chip{background:#fff;color:#1F1A17;border-color:#fff}
+:root[data-occasion="noel"] .hero .chip .ico{color:#B01E30}
+:root[data-occasion="noel"] .hero .chip.hot{background:#1E5B43;color:#fff;border-color:#1E5B43}
+:root[data-occasion="noel"] .hero .chip.hot .ico{color:#fff}
 :root[data-occasion="anniv"] .hero{background-image:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--gold) 12%,transparent) 0 10px,transparent 10px 26px)}
 :root[data-occasion="meres"] .hero{background-image:radial-gradient(color-mix(in srgb,var(--accent) 14%,transparent) 2px,transparent 2.6px),radial-gradient(color-mix(in srgb,var(--ribbon) 16%,transparent) 2px,transparent 2.6px);background-size:26px 26px;background-position:0 0,13px 13px}
 :root[data-occasion="peres"] .hero{background-image:repeating-linear-gradient(0deg,color-mix(in srgb,var(--accent) 7%,transparent) 0 7px,transparent 7px 30px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--accent) 7%,transparent) 0 7px,transparent 7px 30px)}
@@ -157,6 +170,10 @@ button.primary{background:var(--accent);color:var(--accent-ink);border-color:var
 button.gift-btn{background:var(--ribbon);color:#fff;border-color:var(--ribbon);font-weight:700;display:inline-flex;align-items:center;gap:6px}
 :root[data-theme="dark"] button.gift-btn{color:#1a0d0f}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.gift-btn{color:#1a0d0f}}
+/* Noël : boutons rouges à texte blanc, aussi en mode sombre ; « Supprimer » en rouge lisible sur fond sombre */
+:root[data-occasion="noel"] button.gift-btn{color:#fff}
+:root[data-theme="dark"][data-occasion="noel"]{--danger:#F25560}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"])[data-occasion="noel"]{--danger:#F25560}}
 button.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:6px 9px}
 button.ghost:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 5%,transparent)}
 button.danger{color:var(--danger,var(--ribbon))}
@@ -295,13 +312,13 @@ form.add .hint{grid-column:1/-1;font-size:14px;color:var(--muted);margin:-4px 0 
         <path id="star" d="m0-10 2.9 6 6.6.9-4.8 4.6 1.2 6.5L0 4.9-5.9 8l1.1-6.5-4.7-4.6 6.6-.9z"/>
         <g id="flake" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M0-10V10M-8.7-5 8.7 5M-8.7 5 8.7-5M0-10l-3-3M0-10l3-3M0 10l-3 3M0 10l3 3"/></g>
       </defs>
-      <g class="deco-noel" style="color:var(--accent)">
-        <use class="tw" href="#flake" transform="translate(650 34) scale(.8)" opacity=".4"/>
-        <use class="tw" href="#flake" transform="translate(830 46) scale(1.4)" opacity=".55"/>
-        <use class="tw" href="#flake" transform="translate(880 150) scale(.9)" opacity=".45"/>
-        <use class="tw" href="#flake" transform="translate(800 200) scale(.7)" opacity=".35"/>
-        <use class="tw" href="#flake" transform="translate(940 60) scale(.6)" opacity=".35"/>
-        <circle class="tw" cx="760" cy="30" r="3.5" fill="var(--gold)"/><circle class="tw" cx="850" cy="110" r="3" fill="var(--ribbon)"/><circle class="tw" cx="920" cy="210" r="3.5" fill="var(--gold)"/>
+      <g class="deco-noel" style="color:#fff">
+        <use class="tw" href="#flake" transform="translate(650 34) scale(.8)" opacity=".9"/>
+        <use class="tw" href="#flake" transform="translate(830 46) scale(1.4)" opacity=".9"/>
+        <use class="tw" href="#flake" transform="translate(880 150) scale(.9)" opacity=".9"/>
+        <use class="tw" href="#flake" transform="translate(800 200) scale(.7)" opacity=".9"/>
+        <use class="tw" href="#flake" transform="translate(940 60) scale(.6)" opacity=".9"/>
+        <circle class="tw" cx="760" cy="30" r="3.5" fill="#FFD36E"/><circle class="tw" cx="850" cy="110" r="3" fill="#FFD36E"/><circle class="tw" cx="920" cy="210" r="3.5" fill="#FFD36E"/>
       </g>
       <g class="deco-anniv">
         <path d="M620 26c22 12 40-10 62 0s34 14 56 2" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" opacity=".4"/>
