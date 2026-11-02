@@ -44,3 +44,9 @@ Le glisser-déposer « Netlify Drop » ne suffit pas : il ne publie pas le serve
 - Une suggestion acceptée rejoint sa liste comme une idée normale : tout le monde peut alors l'offrir avec « Je l'offre ».
 - L'auteur voit ses suggestions en attente et peut les retirer. Personne d'autre ne sait qui a suggéré quoi.
 - Les idées ajoutées pour les autres avant ce changement sont conservées telles quelles (toujours cachées à la personne concernée, avec leurs réservations).
+
+## Pas de doublon
+- Une même idée ne peut pas apparaître deux fois pour une personne : ni deux fois dans sa liste, ni dans sa liste et dans ses suggestions, ni suggérée deux fois.
+- La comparaison ignore les majuscules, les accents, la ponctuation et le pluriel : « Lego Ninjago », « LÉGOS ninjago ! » et « lego ninjago » sont la même idée.
+- Si quelqu'un ajoute lui-même une idée qu'on lui avait suggérée, la suggestion disparaît d'elle-même.
+- Pour ne pas gâcher de surprise, une idée cachée ajoutée par la famille (avant les suggestions anonymes) n'est jamais signalée comme doublon à la personne concernée.

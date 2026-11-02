@@ -195,12 +195,19 @@ export default async (req) => {
       const link = str(b.link, 500), price = parseFloat(String(b.price ?? "").replace(",", "."));
       return { title, link: /^https?:\/\//i.test(link) ? link : "", price: isFinite(price) && price >= 0 ? Math.round(price * 100) / 100 : null, note: str(b.note, 300), occasion: OCCASIONS.includes(b.occasion) ? b.occasion : "" };
     };
+    // Pas de doublon : même titre à la casse, aux accents, à la ponctuation et au pluriel près (« Lego », « LEGOS » → même idée).
+    const same = (a, b) => norm(a) === norm(b);
     if (t === "addGift") {
       // Chacun ne remplit que sa propre liste ; pour les autres, on passe par une suggestion anonyme.
       if (body.for !== me.id) return fail("Vous ne pouvez ajouter des idées que sur votre propre liste. Envoyez plutôt une suggestion anonyme.", 403);
       const f = ideaFields(me.id, body);
       if (typeof f === "string") return fail(f);
+      // On ne compare qu'aux idées que la personne voit : les idées cachées (surprises) ne doivent pas se trahir.
+      const dup = (await list(st, "gift/")).find(g => g.for === me.id && g.addedBy === me.id && same(g.title, f.title));
+      if (dup) return fail("« " + dup.title + " » est déjà dans votre liste.", 409);
       await st.setJSON("gift/" + (f.id = newId()), { ...f, for: me.id, addedBy: me.id, reservedBy: null, createdAt: Date.now() });
+      // Une suggestion reçue identique devient inutile : on la retire.
+      for (const x of await list(st, "sugg/")) if (x.for === me.id && same(x.title, f.title)) await st.delete("sugg/" + x.id);
       return json({ ok: true });
     }
     if (t === "suggest") {
@@ -209,7 +216,12 @@ export default async (req) => {
       if (to.id === me.id) return fail("Ajoutez plutôt l'idée directement à votre liste.");
       const f = ideaFields(to.id, body);
       if (typeof f === "string") return fail(f);
-      const pending = (await list(st, "sugg/")).filter(x => x.from === me.id && x.for === to.id);
+      const inList = (await list(st, "gift/")).find(g => g.for === to.id && same(g.title, f.title));
+      if (inList) return fail("« " + inList.title + " » est déjà dans la liste de " + to.name + ".", 409);
+      const all = (await list(st, "sugg/")).filter(x => x.for === to.id);
+      const twin = all.find(x => same(x.title, f.title));
+      if (twin) return fail(twin.from === me.id ? "Vous avez déjà suggéré « " + twin.title + " » à " + to.name + "." : "« " + twin.title + " » a déjà été suggérée à " + to.name + ".", 409);
+      const pending = all.filter(x => x.from === me.id);
       if (pending.length >= 10) return fail("Vous avez déjà 10 suggestions en attente pour " + to.name + ".", 429);
       const id = newId();
       await st.setJSON("sugg/" + id, { ...f, id, for: to.id, from: me.id, createdAt: Date.now() });
@@ -221,6 +233,8 @@ export default async (req) => {
       if (t === "withdrawSuggestion" ? x.from !== me.id : x.for !== me.id) return fail("Cette suggestion n'existe plus.", 404);
       if (t === "acceptSuggestion") {
         const { from, ...f } = x;
+        const dup = (await list(st, "gift/")).find(g => g.for === me.id && g.addedBy === me.id && same(g.title, f.title));
+        if (dup) { await st.delete("sugg/" + x.id); return json({ ok: true, info: "« " + dup.title + " » était déjà dans votre liste." }); }
         await st.setJSON("gift/" + (f.id = newId()), { ...f, for: me.id, addedBy: me.id, fromSuggestion: true, reservedBy: null, createdAt: Date.now() });
       }
       await st.delete("sugg/" + x.id);

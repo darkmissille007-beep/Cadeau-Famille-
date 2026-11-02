@@ -479,7 +479,7 @@ async function refresh(){
   try{const d=await api("state");if(S.tok&&!d.me)setTok("");S.d=d;$("status").hidden=true;render()}
   catch(e){$("status").hidden=false;fill($("status"),h("strong",{text:"Liste indisponible."})," "+e.message)}
 }
-async function act(body,msg){try{const r=await api("action",body);if(r.token)setTok(r.token);if(msg)toast(msg);await refresh();return r}catch(e){toast(e.message);return null}}
+async function act(body,msg){try{const r=await api("action",body);if(r.token)setTok(r.token);if(r.info||msg)toast(r.info||msg);await refresh();return r}catch(e){toast(e.message);return null}}
 function askConfirm(key){if(S.ui.confirm===key){S.ui.confirm=null;return true}S.ui.confirm=key;render();setTimeout(()=>{if(S.ui.confirm===key){S.ui.confirm=null;render()}},4000);return false}
 function needMe(){return !(S.d&&S.d.me)}
 
