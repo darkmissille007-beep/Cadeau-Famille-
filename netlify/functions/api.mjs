@@ -50,10 +50,15 @@ const publicPerson = p => ({ id: p.id, name: p.name, isAdmin: !!p.isAdmin, hasCo
 const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim().split(" ").map(w => w.length > 3 ? w.replace(/[sx]$/, "") : w).join(" ");
 const isDate = s => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s + "T00:00:00Z")) && new Date(s + "T00:00:00Z").toISOString().slice(0, 10) === s;
 const frDate = s => new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(s + "T00:00:00Z"));
+const OCCASIONS = ["noel", "anniv"]; // "" = valable pour les deux
+// Anniversaire au format "MM-JJ" (sans année) ; le 29 février est accepté.
+const isBirthday = s => { const m = /^(\d{2})-(\d{2})$/.exec(s || ""); if (!m) return false; const mo = +m[1], d = +m[2]; return mo >= 1 && mo <= 12 && d >= 1 && d <= new Date(Date.UTC(2000, mo, 0)).getUTCDate(); };
 const validCode = c => typeof c === "string" && /^[0-9]{4,12}$/.test(c.trim());
 
 async function stateFor(st, me, people) {
-  const out = { me: me ? publicPerson(me) : null, people: people.map(publicPerson), needsSetup: people.length === 0 };
+  // Les dates d'anniversaire ne sont visibles qu'une fois connecté.
+  const withBday = p => me ? { ...publicPerson(p), birthday: p.birthday || null } : publicPerson(p);
+  const out = { me: me ? withBday(me) : null, people: people.map(withBday), needsSetup: people.length === 0 };
   if (!me) return out;
   if (MODE === "cadeaux") {
     const gifts = await list(st, "gift/");
@@ -141,6 +146,15 @@ export default async (req) => {
     await st.setJSON("person/" + p.id, upd);
     return json({ ok: true, token: p.id === me.id ? sign(upd, sec) : undefined });
   }
+  if (t === "setBirthday") {
+    const p = byId[str(body.id, 40)];
+    if (!p) return fail("Personne introuvable.", 404);
+    if (p.id !== me.id && !me.isAdmin) return fail("Vous ne pouvez changer que votre propre date.", 403);
+    const b = str(body.birthday, 5);
+    if (b && !isBirthday(b)) return fail("Date d'anniversaire invalide.");
+    await st.setJSON("person/" + p.id, { ...p, birthday: b || null });
+    return json({ ok: true });
+  }
   if (t === "removePerson") {
     if (!me.isAdmin) return fail("Seul l'organisateur peut retirer quelqu'un.", 403);
     if (body.id === me.id) return fail("Vous ne pouvez pas vous retirer vous-même.");
@@ -156,7 +170,7 @@ export default async (req) => {
       const title = str(body.title, 120);
       if (!title) return fail("Indiquez une idée.");
       const link = str(body.link, 500), price = parseFloat(String(body.price ?? "").replace(",", "."));
-      const g = { id: newId(), for: body.for, title, link: /^https?:\/\//i.test(link) ? link : "", price: isFinite(price) && price >= 0 ? Math.round(price * 100) / 100 : null, note: str(body.note, 300), addedBy: me.id, reservedBy: null, createdAt: Date.now() };
+      const g = { id: newId(), for: body.for, title, link: /^https?:\/\//i.test(link) ? link : "", price: isFinite(price) && price >= 0 ? Math.round(price * 100) / 100 : null, note: str(body.note, 300), occasion: OCCASIONS.includes(body.occasion) ? body.occasion : "", addedBy: me.id, reservedBy: null, createdAt: Date.now() };
       await st.setJSON("gift/" + g.id, g);
       return json({ ok: true });
     }

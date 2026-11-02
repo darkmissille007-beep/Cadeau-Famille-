@@ -6,106 +6,195 @@
 <meta name="robots" content="noindex">
 <title>Cadeaux de la famille</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<script>/* Thème avant l'affichage : Noël en novembre-décembre, Anniversaire le reste de l'année, sauf choix mémorisé. */
+(function(){var o="";try{o=localStorage.getItem("occ")||""}catch(e){}if(o!=="noel"&&o!=="anniv")o=new Date().getMonth()>=10?"noel":"anniv";document.documentElement.setAttribute("data-occasion",o)})();</script>
 <style>
 html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 
-/* Layout: bandeau montagne en tête, deux onglets (Cadeaux / Courses), colonne des personnes + liste principale */
-:root{
-  --bg:#EEF3F6; --surface:#FFFFFF; --fg:#13222B; --muted:#5A6D78; --line:#D3DDE3;
-  --pine:#1D5A48; --pine-ink:#FFFFFF; --pine-soft:#DCEBE5;
-  --berry:#B8324A; --berry-soft:#F6DDE2; --sky:#2F6E9E;
-  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+/* Thèmes : Noël (sapin, rouge, or) et Anniversaire (violet, corail, soleil), clair et sombre */
+:root,:root[data-occasion="noel"]{
+  --bg:#F6F1E8; --surface:#FFFFFF; --fg:#1F1A17; --muted:#665D55; --line:#E5DBCD;
+  --accent:#1E5B43; --accent-ink:#FFFFFF; --accent-soft:#DCECE3;
+  --ribbon:#B3263A; --ribbon-soft:#F8DFE3; --gold:#A97A22; --gold-soft:#F5EAD2; --link:#1E5B43;
+  --paper:#FBF7F0;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0E171C; --surface:#16232A; --fg:#E5EEF2; --muted:#93A6B0; --line:#2A3B44;
-  --pine:#5FBF9D; --pine-ink:#0B1A15; --pine-soft:#1C3A31;
-  --berry:#F0798E; --berry-soft:#3D1F27; --sky:#7FB6E0; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0E171C; --surface:#16232A; --fg:#E5EEF2; --muted:#93A6B0; --line:#2A3B44;
-  --pine:#5FBF9D; --pine-ink:#0B1A15; --pine-soft:#1C3A31;
-  --berry:#F0798E; --berry-soft:#3D1F27; --sky:#7FB6E0; color-scheme:dark}
+:root[data-occasion="anniv"]{
+  --bg:#FBF4F1; --surface:#FFFFFF; --fg:#22182A; --muted:#6B5E73; --line:#EBDDE3;
+  --accent:#6337B0; --accent-ink:#FFFFFF; --accent-soft:#EDE4F9;
+  --ribbon:#C23C2A; --ribbon-soft:#FCE4DE; --gold:#B57C0E; --gold-soft:#FBEFCF; --link:#6337B0;
+  --paper:#FDF8F6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]),:root:not([data-theme="light"])[data-occasion="noel"]{
+    --bg:#121110; --surface:#1D1A17; --fg:#F2ECE4; --muted:#A99E92; --line:#352E28;
+    --accent:#6CC59D; --accent-ink:#0C1A13; --accent-soft:#1C3A2C;
+    --ribbon:#F07A8A; --ribbon-soft:#3E1F25; --gold:#E3B865; --gold-soft:#382C16; --link:#8AD5B2;
+    --paper:#191714; color-scheme:dark}
+  :root:not([data-theme="light"])[data-occasion="anniv"]{
+    --bg:#13101A; --surface:#1E1826; --fg:#F1EAF5; --muted:#A698B0; --line:#352B3F;
+    --accent:#B99CF2; --accent-ink:#1A0F2E; --accent-soft:#2E2343;
+    --ribbon:#FF8C78; --ribbon-soft:#41231E; --gold:#F2C14E; --gold-soft:#3A2F14; --link:#C9B1F7;
+    --paper:#1A1521; color-scheme:dark}
+}
+:root[data-theme="dark"],:root[data-theme="dark"][data-occasion="noel"]{
+  --bg:#121110; --surface:#1D1A17; --fg:#F2ECE4; --muted:#A99E92; --line:#352E28;
+  --accent:#6CC59D; --accent-ink:#0C1A13; --accent-soft:#1C3A2C;
+  --ribbon:#F07A8A; --ribbon-soft:#3E1F25; --gold:#E3B865; --gold-soft:#382C16; --link:#8AD5B2;
+  --paper:#191714; color-scheme:dark}
+:root[data-theme="dark"][data-occasion="anniv"]{
+  --bg:#13101A; --surface:#1E1826; --fg:#F1EAF5; --muted:#A698B0; --line:#352B3F;
+  --accent:#B99CF2; --accent-ink:#1A0F2E; --accent-soft:#2E2343;
+  --ribbon:#FF8C78; --ribbon-soft:#41231E; --gold:#F2C14E; --gold-soft:#3A2F14; --link:#C9B1F7;
+  --paper:#1A1521; color-scheme:dark}
+:root{--display:"Fraunces", Georgia, "Times New Roman", serif; --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif}
+
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;transition:background-color .3s}
 .wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-header.top{padding-block:28px 8px}
-.ridge{display:block;width:100%;height:46px;color:var(--pine);opacity:.9}
-.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,6vw,46px);line-height:1.05;margin:6px 0 4px;text-wrap:balance}
-.sub{color:var(--muted);margin:0}
-.toprow{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
-select,input,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}
-select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
-button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 13px}
-button.primary{background:var(--pine);color:var(--pine-ink);border-color:var(--pine);font-weight:700}
-button.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:6px 8px}
-button.ghost:hover{color:var(--fg)}
-button.danger{color:var(--berry)}
+.ico{display:inline-flex;width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
+.ico svg{width:100%;height:100%}
+
+/* Barre du haut : choix de l'occasion + compte */
+.topbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding-block:16px 12px}
+.occ{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:3px;gap:2px}
+.occ button{border:0;border-radius:99px;background:transparent;color:var(--muted);font-weight:700;padding:6px 14px;display:inline-flex;gap:6px;align-items:center}
+.occ button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.acct{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px}
+.who-l{font-size:14px;color:var(--muted);font-weight:700}
+.who-n{font-size:16px;margin-right:4px}
+
+/* Bandeau : un paquet cadeau avec son ruban et son nœud */
+.hero{position:relative;overflow:hidden;border-radius:18px;background-color:var(--surface);border:1px solid var(--line);padding:30px 128px 86px 28px;isolation:isolate}
+:root[data-occasion="noel"] .hero{background-image:radial-gradient(color-mix(in srgb,var(--accent) 13%,transparent) 1.6px,transparent 2px);background-size:22px 22px}
+:root[data-occasion="anniv"] .hero{background-image:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--gold) 12%,transparent) 0 10px,transparent 10px 26px)}
+.hero::before,.hero::after{content:"";position:absolute;z-index:-1;background:var(--ribbon);box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--fg) 8%,transparent)}
+.hero::before{top:0;bottom:0;right:60px;width:24px}
+.hero::after{left:0;right:0;bottom:40px;height:24px}
+.bow{position:absolute;right:12px;bottom:12px;width:120px;height:80px;color:var(--ribbon);z-index:1;filter:drop-shadow(0 2px 2px color-mix(in srgb,var(--fg) 18%,transparent))}
+.deco{position:absolute;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none}
+@media (max-width:860px){.deco{display:none}}
+:root[data-occasion="noel"] .deco-anniv,:root[data-occasion="anniv"] .deco-noel{display:none}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ribbon);font-weight:700;display:flex;align-items:center;gap:6px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(32px,6.4vw,54px);line-height:1.02;margin:8px 0 8px;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{color:var(--muted);margin:0;max-width:44ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:700;border-radius:99px;padding:6px 12px;background:var(--gold-soft);color:var(--fg);border:1px solid color-mix(in srgb,var(--gold) 35%,transparent)}
+.chip .ico{color:var(--gold)}
+.chip.hot{background:var(--ribbon);color:#fff;border-color:var(--ribbon)}
+.chip.hot .ico{color:#fff}
+button.chip{cursor:pointer}
+@media (max-width:600px){
+  .hero{padding:24px 64px 76px 18px;border-radius:14px}
+  .hero::before{right:26px;width:18px}.hero::after{bottom:34px;height:18px}
+  .bow{right:-13px;bottom:11px;width:96px;height:64px}
+  .deco{display:none}
+  .who-l{display:none}
+  .acct button.ghost{padding:5px 7px;font-size:15px}
+}
+
+/* Formulaires et boutons */
+select,input,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0}
+select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 13px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+button.gift-btn{background:var(--ribbon);color:#fff;border-color:var(--ribbon);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+:root[data-theme="dark"] button.gift-btn{color:#1a0d0f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.gift-btn{color:#1a0d0f}}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:6px 9px}
+button.ghost:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 5%,transparent)}
+button.danger{color:var(--ribbon)}
 button:disabled{opacity:.5;cursor:not-allowed}
-main{padding-block:22px 60px}
-.banner{background:var(--berry-soft);color:var(--fg);border-radius:10px;padding:12px 14px;margin-bottom:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.banner strong{color:var(--berry)}
+
+main{padding-block:24px 64px}
+.banner{background:var(--ribbon-soft);color:var(--fg);border-radius:12px;padding:12px 14px;margin-bottom:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.banner strong{color:var(--ribbon)}
 
 /* Cadeaux */
-.gifts{display:grid;grid-template-columns:240px minmax(0,1fr);gap:24px;align-items:start}
-@media (max-width:760px){.gifts{grid-template-columns:minmax(0,1fr)}}
-.people{display:flex;flex-direction:column;gap:6px}
-@media (max-width:760px){.people{flex-direction:row;flex-wrap:wrap}}
-.person{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid transparent;background:transparent;font-weight:700}
+.gifts{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:760px){.gifts{grid-template-columns:minmax(0,1fr);gap:18px}}
+.side-h{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:4px 0 10px}
+.people{display:flex;flex-direction:column;gap:4px}
+@media (max-width:760px){.people{flex-direction:row;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}.side-h{display:none}}
+.person{display:flex;align-items:center;gap:10px;text-align:left;padding:8px 10px;border-radius:12px;border:1px solid transparent;background:transparent;flex:none}
 .person:hover{background:var(--surface)}
-.person[aria-current="true"]{background:var(--surface);border-color:var(--line);box-shadow:inset 3px 0 0 var(--berry)}
-.person .n{font-weight:400;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
-.addperson{display:flex;gap:6px;margin-top:8px}
-.addperson input{flex:1;width:0}
-.panel-h{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
-h2{font-family:var(--display);font-weight:800;font-size:28px;margin:0;text-wrap:balance}
+.person[aria-current="true"]{background:var(--surface);border-color:var(--line);box-shadow:0 1px 0 var(--line)}
+.av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:15px;flex:none;color:#fff;background:var(--c,var(--accent))}
+.person[aria-current="true"] .av{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ribbon)}
+.p-txt{display:flex;flex-direction:column;line-height:1.2;min-width:0;flex:1}
+.p-name{font-weight:700;white-space:nowrap}
+.p-bd{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.p-n{font-size:13px;font-weight:700;color:var(--muted);background:var(--bg);border-radius:99px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.person[aria-current="true"] .p-n{background:var(--ribbon-soft);color:var(--ribbon)}
+
+.panel-h{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:6px 12px}
+h2{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,34px);line-height:1.1;margin:0;text-wrap:balance}
 .meta{color:var(--muted);font-size:14px}
-form.add{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) 110px;gap:8px;margin:14px 0 20px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
-form.add .full{grid-column:1/-1}
+.p-sub{color:var(--muted);font-size:14px;margin:4px 0 0;display:flex;align-items:center;gap:6px}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 0}
+.filters button{border-radius:99px;padding:5px 12px;font-size:14px;font-weight:700;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.filters .c{font-weight:400;opacity:.8;font-variant-numeric:tabular-nums}
+
+form.add{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) 140px;gap:8px;margin:14px 0 20px;background:var(--paper);border:1.5px dashed var(--line);border-radius:14px;padding:14px}
+form.add .lbl{grid-column:1/-1;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--accent)}
+form.add .n2{grid-column:1/3}
 form.add .row{grid-column:1/-1;display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
-@media (max-width:560px){form.add{grid-template-columns:minmax(0,1fr) 100px}form.add .t{grid-column:1/-1}}
-.list{display:flex;flex-direction:column;gap:10px}
-.gift{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px}
-.gift.taken{opacity:.72}
-.gift .title{font-weight:700;font-size:17px;overflow-wrap:anywhere}
-.gift .price{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:560px){form.add{grid-template-columns:minmax(0,1fr) 120px}form.add .t,form.add .n2{grid-column:1/-1}}
+
+.list{display:flex;flex-direction:column;gap:12px}
+.gift{position:relative;background:linear-gradient(var(--ribbon),var(--ribbon)) left top/6px 100% no-repeat,var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px 14px 22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px}
+.gift.taken{background:linear-gradient(var(--accent),var(--accent)) left top/6px 100% no-repeat,var(--paper)}
+.gift.taken .title{color:var(--muted)}
+.gift .title{font-weight:700;font-size:17px;overflow-wrap:anywhere;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.gift .price{font-family:var(--display);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--accent)}
 .gift .note{color:var(--muted);font-size:15px;grid-column:1/-1;overflow-wrap:anywhere}
 .gift .foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
-.gift a{color:var(--sky);overflow-wrap:anywhere}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;border-radius:99px;padding:3px 10px;background:var(--pine-soft);color:var(--pine)}
-.pill.r{background:var(--berry-soft);color:var(--berry)}
+.gift .acts{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.gift a{color:var(--link);overflow-wrap:anywhere;font-weight:700}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;border-radius:6px;padding:1px 7px;background:var(--gold-soft);color:var(--fg);white-space:nowrap}
+.tag .ico{color:var(--gold)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;border-radius:99px;padding:3px 10px;background:var(--accent-soft);color:var(--accent)}
 .by{font-size:13px;color:var(--muted)}
-.empty{border:1.5px dashed var(--line);border-radius:12px;padding:22px;color:var(--muted);text-align:center}
-.secret{font-size:14px;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.empty{border:1.5px dashed var(--line);border-radius:14px;padding:28px 22px;color:var(--muted);text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.empty .ico{width:36px;height:36px;color:var(--ribbon)}
+.secret{font-size:14px;color:var(--fg);background:var(--ribbon-soft);border-radius:12px;padding:10px 14px;display:flex;gap:8px;align-items:center;margin:0 0 14px}
+.secret .ico{color:var(--ribbon)}
 
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:calc(100% - 32px)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);z-index:5}
 
-
-/* Commun : compte, connexion, famille */
-.acct{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
-.who-l{font-size:14px;color:var(--muted);font-weight:700}
-.who-n{font-size:17px;margin-right:4px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:16px;display:flex;flex-direction:column;gap:12px}
-.panel h3{margin:0;font-family:var(--display);font-size:20px}
+/* Panneaux : compte, famille, anniversaires */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px;display:flex;flex-direction:column;gap:12px}
+.panel h3{margin:0;font-family:var(--display);font-size:22px}
 .panel p{margin:0}
 .row-form{display:flex;flex-wrap:wrap;gap:8px}
 .row-form input{flex:1 1 160px;min-width:0}
 .fam-list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
-.fam-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
-.fam-name{font-weight:700}
-.fam-act{display:flex;gap:6px;flex-wrap:wrap}
-.code-note{background:var(--bg);border-radius:8px;padding:10px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.fam-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.fam-name{font-weight:700;display:flex;align-items:center;gap:10px}
+.fam-name .av{width:28px;height:28px;font-size:13px}
+.fam-act{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.code-note{background:var(--bg);border-radius:10px;padding:10px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .code-val{font-size:22px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
-.gate{padding-block:28px 60px}
-.gate-card{max-width:460px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.ec-form{flex-basis:100%}
+.ec-form input{font-variant-numeric:tabular-nums;letter-spacing:.08em}
+.bd-val{color:var(--muted);font-size:14px;font-weight:400}
+.bd-form select{flex:none}
+.pill-off{display:inline-block;margin-left:2px;font-size:12px;font-weight:700;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:1px 8px}
+
+/* Connexion et première configuration */
+.gate{padding-block:6px 60px}
+.gate-card{max-width:480px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.gate-card::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:repeating-linear-gradient(90deg,var(--ribbon) 0 18px,var(--accent) 18px 36px,var(--gold) 36px 54px)}
 .gate-card h2{margin:0}
 .gate-card p{margin:0}
 .gate-names{display:flex;flex-wrap:wrap;gap:8px}
-.gate-names button{font-weight:700}
+.gate-names button{font-weight:700;border-radius:99px;padding:8px 16px}
+.gate-names button:disabled{opacity:.45;cursor:not-allowed}
 .gate-form{display:flex;flex-direction:column;gap:8px}
 .gate-form label{font-size:14px;font-weight:700;color:var(--muted)}
-.gate-card.wide{max-width:560px}
+.gate-card.wide{max-width:580px}
 .su-head,.su-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 104px;gap:8px;align-items:center}
 .su-head span{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .su-row input{width:100%}
@@ -113,33 +202,64 @@ form.add .row{grid-column:1/-1;display:flex;gap:8px;justify-content:space-betwee
 .su-tag{font-size:12px;font-weight:700;color:var(--muted);text-align:center}
 .su-row .ghost{justify-self:center}
 @media (max-width:440px){.su-head,.su-row{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 40px}.su-tag{font-size:0}.su-tag::after{content:"★";font-size:16px}}
-.pill-off{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:1px 8px}
-.gate-names button:disabled{opacity:.45;cursor:not-allowed}
-.ec-form{flex-basis:100%}
-.ec-form input{font-variant-numeric:tabular-nums;letter-spacing:.08em}
+@media (prefers-reduced-motion:no-preference){.deco .tw{animation:tw 4s ease-in-out infinite alternate}.deco .tw:nth-child(3n){animation-delay:-1.5s}.deco .tw:nth-child(3n+1){animation-delay:-3s}}
+@keyframes tw{from{opacity:.35}to{opacity:1}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="top">
-    <svg class="ridge" viewBox="0 0 600 46" preserveAspectRatio="none" aria-hidden="true"><path fill="currentColor" d="M0 46 L70 18 L110 30 L170 4 L215 26 L260 12 L320 34 L380 8 L430 28 L480 16 L540 32 L600 20 L600 46Z" opacity=".25"/><path fill="currentColor" d="M0 46 L50 30 L120 40 L190 20 L250 38 L330 22 L400 40 L470 26 L540 40 L600 32 L600 46Z"/></svg>
-    <div class="toprow">
-      <div>
-        <div class="eyebrow">Idées cadeaux · famille</div>
-        <h1>Cadeaux de la famille</h1>
-        <p class="sub">Les envies de chacun, et qui offre quoi, sans gâcher la surprise.</p>
-      </div>
-      <div class="acct" id="acct" aria-live="polite"></div>
+  <div class="topbar">
+    <div class="occ" role="group" aria-label="Occasion">
+      <button type="button" data-occ="noel" aria-pressed="false"><span class="ico" data-i="tree"></span>Noël</button>
+      <button type="button" data-occ="anniv" aria-pressed="false"><span class="ico" data-i="cake"></span>Anniversaires</button>
     </div>
-    <div class="panel" id="panel" hidden></div>
+    <div class="acct" id="acct" aria-live="polite"></div>
+  </div>
+
+  <header class="hero">
+    <svg class="deco" viewBox="0 0 1000 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
+      <defs>
+        <g id="flake" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M0-10V10M-8.7-5 8.7 5M-8.7 5 8.7-5M0-10l-3-3M0-10l3-3M0 10l-3 3M0 10l3 3"/></g>
+      </defs>
+      <g class="deco-noel" style="color:var(--accent)">
+        <use class="tw" href="#flake" transform="translate(650 34) scale(.8)" opacity=".4"/>
+        <use class="tw" href="#flake" transform="translate(830 46) scale(1.4)" opacity=".55"/>
+        <use class="tw" href="#flake" transform="translate(880 150) scale(.9)" opacity=".45"/>
+        <use class="tw" href="#flake" transform="translate(800 200) scale(.7)" opacity=".35"/>
+        <use class="tw" href="#flake" transform="translate(940 60) scale(.6)" opacity=".35"/>
+        <circle class="tw" cx="760" cy="30" r="3.5" fill="var(--gold)"/><circle class="tw" cx="850" cy="110" r="3" fill="var(--ribbon)"/><circle class="tw" cx="920" cy="210" r="3.5" fill="var(--gold)"/>
+      </g>
+      <g class="deco-anniv">
+        <path d="M620 26c22 12 40-10 62 0s34 14 56 2" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" opacity=".4"/>
+        <rect class="tw" x="780" y="30" width="14" height="6" rx="2" fill="var(--ribbon)" transform="rotate(30 787 33)"/>
+        <rect class="tw" x="860" y="120" width="14" height="6" rx="2" fill="var(--accent)" transform="rotate(-20 867 123)"/>
+        <rect class="tw" x="900" y="40" width="16" height="6" rx="2" fill="var(--gold)" transform="rotate(60 908 43)"/>
+        <rect class="tw" x="810" y="200" width="12" height="5" rx="2" fill="var(--gold)" transform="rotate(-45 816 202)"/>
+        <circle class="tw" cx="840" cy="80" r="5" fill="var(--accent)"/><circle class="tw" cx="920" cy="180" r="4" fill="var(--ribbon)"/><circle class="tw" cx="700" cy="44" r="3.5" fill="var(--gold)"/>
+      </g>
+    </svg>
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="title">Cadeaux de la <em>famille</em></h1>
+    <p class="sub" id="sub"></p>
+    <div class="chips" id="chips"></div>
+    <svg class="bow" viewBox="0 0 120 80" aria-hidden="true">
+      <g fill="currentColor">
+        <path d="M60 40C40 8 6 12 13 34c4 14 30 13 47 6Z"/><path d="M60 40C80 8 114 12 107 34c-4 14-30 13-47 6Z"/>
+        <path d="M55 43 38 80l11-5 7 6 6-36Z"/><path d="M65 43l17 37-11-5-7 6-6-36Z"/>
+      </g>
+      <path d="M60 40C46 20 24 18 22 30" fill="none" stroke="#000" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/>
+      <path d="M60 40C74 20 96 18 98 30" fill="none" stroke="#000" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/>
+      <rect x="50" y="30" width="20" height="20" rx="7" fill="currentColor"/><rect x="50" y="30" width="20" height="20" rx="7" fill="#000" fill-opacity=".14"/>
+    </svg>
   </header>
+  <div class="panel" id="panel" hidden></div>
 
   <main>
     <div id="status" class="banner" hidden></div>
     <section id="gate" class="gate"><div class="empty">Chargement de la liste…</div></section>
-    <section id="app" hidden style="margin-top:22px">
+    <section id="app" hidden>
       <div class="gifts">
-        <aside><div class="people" id="people"></div></aside>
+        <aside><div class="side-h">La famille</div><div class="people" id="people"></div></aside>
         <div id="gift-panel"></div>
       </div>
     </section>
@@ -162,6 +282,60 @@ const pname=id=>((S.d&&S.d.people.find(p=>p.id===id))||{}).name||"Quelqu'un";
 const isMe=id=>!!(S.d&&S.d.me&&S.d.me.id===id);
 function genCode(){const a=new Uint32Array(1);crypto.getRandomValues(a);return String(100000+a[0]%900000)}
 function setTok(t){S.tok=t||"";store("tok",S.tok)}
+
+/* ---------- Icônes, occasion (Noël / Anniversaires), dates ---------- */
+const ICONS={
+  gift:'<path d="M3 9h18v4H3zM5 13v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7M12 9v12M12 9S10.5 4 8 4.5 7.5 9 12 9zM12 9s1.5-5 4-4.5S16.5 9 12 9z"/>',
+  tree:'<path d="M12 2.5 17 9h-3l4.5 5.5h-3L20 20H4l4.5-5.5h-3L10 9H7z"/><path d="M12 20v2"/>',
+  cake:'<path d="M3.5 21h17M5 21v-6.5A2.5 2.5 0 0 1 7.5 12h9a2.5 2.5 0 0 1 2.5 2.5V21M5 16.5c1.4 1 2.9 1 4.3 0s2.9-1 4.3 0 2.9 1 4.3 0M12 12V8.5M12 6.2c.9-.8.9-1.8 0-2.7-.9.9-.9 1.9 0 2.7z"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'
+};
+function ico(n){const s=document.createElement("span");s.className="ico";s.setAttribute("aria-hidden","true");s.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+ICONS[n]+'</svg>';return s}
+document.querySelectorAll(".ico[data-i]").forEach(e=>e.replaceWith(ico(e.dataset.i)));
+const OCC={noel:{label:"Noël",icon:"tree"},anniv:{label:"Anniversaire",icon:"cake"}};
+S.occ=document.documentElement.getAttribute("data-occasion")||"noel";
+S.ui.filter=S.occ;
+document.querySelectorAll(".occ button").forEach(b=>b.addEventListener("click",()=>{S.occ=b.dataset.occ;S.ui.filter=S.occ;store("occ",S.occ);document.documentElement.setAttribute("data-occasion",S.occ);render()}));
+const MOIS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+const frDM=b=>{const[m,d]=b.split("-").map(Number);return (d===1?"1er":d)+" "+MOIS[m-1]};
+function daysUntil(mmdd){
+  const now=new Date(),t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const[m,d]=mmdd.split("-").map(Number);
+  const at=y=>new Date(y,m-1,m===2&&d===29&&new Date(y,1,29).getMonth()!==1?28:d);
+  let t=at(t0.getFullYear());if(t<t0)t=at(t0.getFullYear()+1);
+  return Math.round((t-t0)/864e5);
+}
+const inDays=n=>n===0?"aujourd'hui":n===1?"demain":"dans "+n+" jours";
+const PALETTE=["#B3263A","#1E5B43","#6337B0","#A9661C","#2F6E9E","#A23C7A","#4E6B1F","#8A4B2C"];
+const avColor=id=>{let h=0;for(const c of String(id))h=(h*31+c.charCodeAt(0))>>>0;return PALETTE[h%PALETTE.length]};
+const av=p=>h("span",{class:"av",style:"--c:"+avColor(p.id),"aria-hidden":"true",text:(p.name||"?").trim().charAt(0).toUpperCase()});
+function nextBirthdays(){
+  const ps=((S.d&&S.d.people)||[]).filter(p=>p.birthday);
+  if(!ps.length)return null;
+  const best=Math.min(...ps.map(p=>daysUntil(p.birthday)));
+  return {days:best,people:ps.filter(p=>daysUntil(p.birthday)===best)};
+}
+const names=ps=>ps.map(p=>p.name).join(" et ");
+
+function renderHero(){
+  document.querySelectorAll(".occ button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.occ===S.occ?"true":"false"));
+  const noel=S.occ==="noel",y=new Date().getFullYear()+(new Date().getMonth()===11&&new Date().getDate()>25?1:0);
+  fill($("eyebrow"),ico(noel?"tree":"cake"),noel?"Noël "+y+" · en famille":"Anniversaires · en famille");
+  fill($("title"),noel?"La hotte de la ":"Les cadeaux de la ",h("em",{text:"famille"}));
+  $("sub").textContent=noel?"Chacun note ses envies, les autres choisissent en secret ce qu'ils déposent sous le sapin.":"Les envies de chacun pour son anniversaire, et qui offre quoi, sans gâcher la surprise.";
+  const xmas=daysUntil("12-25"),me=S.d&&S.d.me;
+  const cX=h("span",{class:"chip"+(xmas===0?" hot":"")},ico("tree"),xmas===0?"Joyeux Noël !":"Noël "+inDays(xmas));
+  let cB=null;
+  if(me){
+    const nb=nextBirthdays();
+    if(nb)cB=h("span",{class:"chip"+(nb.days===0?" hot":"")},ico("cake"),nb.days===0?"Joyeux anniversaire, "+names(nb.people)+" !":"Anniversaire de "+names(nb.people)+" "+inDays(nb.days)+" · "+frDM(nb.people[0].birthday));
+    else cB=h("button",{type:"button",class:"chip",onclick:()=>{S.ui.panel="bday";render()}},ico("cake"),"Ajouter les dates d'anniversaire");
+  }
+  fill($("chips"),noel?[cX,cB]:[cB,cX]);
+}
 
 async function api(route,body){
   let r;
@@ -214,8 +388,9 @@ function renderGate(){
 function renderAccount(){
   const box=$("acct"),me=S.d&&S.d.me;
   if(!me){fill(box);return}
-  const tog=p=>()=>{S.ui.panel=S.ui.panel===p?"":p;S.ui.lastCode=null;render()};
+  const tog=p=>()=>{S.ui.panel=S.ui.panel===p?"":p;S.ui.lastCode=null;S.ui.bd=null;render()};
   fill(box,h("span",{class:"who-l",text:"Connecté :"}),h("strong",{class:"who-n",text:me.name}),
+    h("button",{type:"button",class:"ghost","aria-expanded":S.ui.panel==="bday"?"true":"false",onclick:tog("bday")},"Anniversaires"),
     me.isAdmin?h("button",{type:"button",class:"ghost","aria-expanded":S.ui.panel==="fam"?"true":"false",onclick:tog("fam")},"Gérer la famille"):null,
     h("button",{type:"button",class:"ghost","aria-expanded":S.ui.panel==="code"?"true":"false",onclick:tog("code")},"Mon code"),
     h("button",{type:"button",class:"ghost",onclick:()=>{setTok("");S.ui.panel="";refresh()}},"Se déconnecter"));
@@ -231,12 +406,31 @@ function renderPanel(){
         h("button",{class:"primary",type:"submit"},"Enregistrer")));
     return;
   }
+  if(S.ui.panel==="bday"){
+    S.ui.bd=S.ui.bd||{};
+    fill(box,h("h3",{text:"Les anniversaires"}),
+      h("p",{class:"meta",text:me.isAdmin?"Indiquez le jour et le mois de chacun (sans l'année). Les dates ne sont visibles que par la famille connectée.":"Indiquez votre jour et votre mois d'anniversaire (sans l'année). Seul l'organisateur peut changer la date des autres."}),
+      h("div",{class:"fam-list"},...d.people.map(p=>{
+        const can=p.id===me.id||me.isAdmin,cur=S.ui.bd[p.id]||(p.birthday?p.birthday.split("-"):["",""]);
+        S.ui.bd[p.id]=cur;
+        const sel=(i,opts,lbl)=>h("select",{"aria-label":lbl+" — "+p.name,onchange:e=>{cur[i]=e.target.value}},h("option",{value:"",text:lbl}),...opts.map(([v,t])=>h("option",{value:v,selected:cur[i]===v,text:t})));
+        return h("div",{class:"fam-row"},
+          h("span",{class:"fam-name"},av(p),p.name,h("span",{class:"bd-val",text:p.birthday?"· "+frDM(p.birthday)+" ("+inDays(daysUntil(p.birthday))+")":"· pas de date"})),
+          can?h("form",{class:"fam-act bd-form",onsubmit:async e=>{e.preventDefault();const[m,dd]=cur;
+              if(!m||!dd){toast("Choisissez le jour et le mois.");return}
+              if(await act({type:"setBirthday",id:p.id,birthday:m+"-"+dd},"Date de "+p.name+" enregistrée."))delete S.ui.bd[p.id]}},
+            sel(1,Array.from({length:31},(_,i)=>{const v=String(i+1).padStart(2,"0");return [v,i?String(i+1):"1er"]}),"Jour"),
+            sel(0,MOIS.map((t,i)=>[String(i+1).padStart(2,"0"),t]),"Mois"),
+            h("button",{class:"primary",type:"submit"},"Enregistrer"),
+            p.birthday?h("button",{type:"button",class:"ghost danger",onclick:async()=>{if(await act({type:"setBirthday",id:p.id,birthday:""},"Date effacée."))delete S.ui.bd[p.id]}},"Effacer"):null):null)})));
+    return;
+  }
   const last=S.ui.lastCode;
   fill(box,h("h3",{text:"La famille"}),
     h("p",{class:"meta",text:"Chaque personne entre avec son prénom et son code. Transmettez le code en privé (SMS, de vive voix)."}),
     last?h("p",{class:"code-note"},"Code de "+last.name+" : ",h("strong",{class:"code-val",text:last.code}),h("button",{type:"button",class:"ghost",onclick:async()=>{try{await navigator.clipboard.writeText(last.code);toast("Code copié.")}catch(e){toast("Copie impossible : notez le code.")}}},"Copier")):null,
     h("div",{class:"fam-list"},...d.people.map(p=>{const k="rm:"+p.id;return h("div",{class:"fam-row"},
-      h("span",{class:"fam-name"},p.name+(p.isAdmin?" · organisateur":""),p.hasCode?null:h("span",{class:"pill-off",text:"pas encore de code"})),
+      h("span",{class:"fam-name"},av(p),p.name+(p.isAdmin?" · organisateur":""),p.hasCode?null:h("span",{class:"pill-off",text:"pas encore de code"})),
       h("span",{class:"fam-act"},
         p.id!==me.id&&S.ui.editCode!==p.id?h("button",{type:"button",class:p.hasCode?"":"primary",onclick:()=>{S.ui.editCode=p.id;S.ui.ecVal="";S.ui.lastCode=null;render();setTimeout(()=>{const i=$("ec-"+p.id);if(i){i.focus();i.select()}})}},p.hasCode?"Changer le code":"Donner un code"):null,
         p.id!==me.id&&S.ui.editCode!==p.id?h("button",{type:"button",class:"ghost danger",onclick:()=>{if(askConfirm(k))act({type:"removePerson",id:p.id},p.name+" a été retiré.")}},S.ui.confirm===k?"Confirmer":"Retirer"):null),
@@ -253,7 +447,7 @@ function renderPanel(){
 function render(){
   const d=S.d,inside=!!(d&&d.me);
   $("gate").hidden=!d||inside;$("app").hidden=!inside;
-  renderAccount();renderPanel();
+  renderHero();renderAccount();renderPanel();
   if(!d)return;
   if(!inside){renderGate();return}
   renderApp();
@@ -269,44 +463,59 @@ function renderApp(){
   if(S.sel&&!d.people.some(p=>p.id===S.sel))S.sel="";
   if(!S.sel)S.sel=d.me.id;
   fill($("people"),...d.people.map(p=>h("button",{class:"person","aria-current":p.id===S.sel?"true":"false",onclick:()=>{S.sel=p.id;render()}},
-    h("span",{text:p.name+(isMe(p.id)?" (moi)":"")}),h("span",{class:"n",text:String(giftsFor(p.id).length+(isMe(p.id)?d.hidden:0))}))));
+    av(p),
+    h("span",{class:"p-txt"},h("span",{class:"p-name",text:p.name+(isMe(p.id)?" (moi)":"")}),p.birthday?h("span",{class:"p-bd",text:frDM(p.birthday)}):null),
+    h("span",{class:"p-n","aria-label":"idées",text:String(giftsFor(p.id).length+(isMe(p.id)?d.hidden:0))}))));
   renderGifts();
 }
+const matchOcc=(g,f)=>!f||!g.occasion||g.occasion===f;
 function renderGifts(){
   const d=S.d,panel=$("gift-panel"),p=d.people.find(x=>x.id===S.sel);
   if(!p){fill(panel);return}
-  const mine=isMe(p.id),list=giftsFor(p.id);
-  const total=list.reduce((s,g)=>s+(+g.price||0),0);
+  const mine=isMe(p.id),all=giftsFor(p.id),f=S.ui.filter,list=all.filter(g=>matchOcc(g,f));
+  const total=list.reduce((s,g)=>s+(+g.price||0),0),taken=list.filter(g=>g.reservedBy).length;
   const old=panel.querySelector("form.add");const keep={};let focus=null;
-  if(old&&old.dataset.pid===p.id){for(const n of ["title","link","price","note"])keep[n]=old[n].value;if(old.contains(document.activeElement))focus=document.activeElement.name}
+  if(old&&old.dataset.pid===p.id&&old.dataset.occ===S.occ){for(const n of ["title","link","price","note","occasion"])keep[n]=old[n].value;if(old.contains(document.activeElement))focus=document.activeElement.name}
   const form=h("form",{class:"add",onsubmit:async e=>{e.preventDefault();const f=e.target;const title=f.title.value.trim();if(!title)return;
-      const ok=await act({type:"addGift",for:p.id,title,link:f.link.value.trim(),price:f.price.value.replace(/[^\d,.]/g,""),note:f.note.value.trim()},mine?"Idée ajoutée à votre liste.":"Idée ajoutée pour "+p.name+".");
-      if(ok){const nf=$("gift-panel").querySelector("form.add");if(nf)nf.reset()}}},
-    h("input",{class:"t",name:"title",placeholder:mine?"Une idée pour moi…":"Une idée pour "+p.name+"…",maxlength:"120",required:true,"aria-label":"Idée cadeau"}),
+      const ok=await act({type:"addGift",for:p.id,title,link:f.link.value.trim(),price:f.price.value.replace(/[^\d,.]/g,""),note:f.note.value.trim(),occasion:f.occasion.value},mine?"Idée ajoutée à votre liste.":"Idée ajoutée pour "+p.name+" (elle reste secrète pour lui ou elle).");
+      if(ok){const nf=$("gift-panel").querySelector("form.add");if(nf){nf.reset();nf.occasion.value=S.occ}}}},
+    h("div",{class:"lbl"},ico("plus"),mine?"Ajouter une envie":"Proposer une idée pour "+p.name),
+    h("input",{class:"t",name:"title",placeholder:mine?"Ce qui me ferait plaisir…":"Une idée pour "+p.name+"…",maxlength:"120",required:true,"aria-label":"Idée cadeau"}),
     h("input",{name:"link",placeholder:"Lien (facultatif)",type:"url",maxlength:"500","aria-label":"Lien"}),
     h("input",{name:"price",placeholder:"Prix €",inputmode:"decimal",enterkeyhint:"done",maxlength:"10","aria-label":"Prix en euros"}),
-    h("input",{class:"full",name:"note",placeholder:"Précision : taille, couleur, où l'acheter…",maxlength:"300","aria-label":"Précision"}),
-    h("div",{class:"row"},h("span",{class:"by",text:"Proposé par "+d.me.name}),h("button",{class:"primary",type:"submit"},"Ajouter l'idée")));
-  form.dataset.pid=p.id;for(const n in keep)form[n].value=keep[n];
+    h("input",{class:"n2",name:"note",placeholder:"Précision : taille, couleur, où l'acheter…",maxlength:"300","aria-label":"Précision"}),
+    h("select",{name:"occasion","aria-label":"Pour quelle occasion"},
+      h("option",{value:"noel",selected:S.occ==="noel",text:"Noël"}),
+      h("option",{value:"anniv",selected:S.occ==="anniv",text:"Anniversaire"}),
+      h("option",{value:"",text:"Les deux"})),
+    h("div",{class:"row"},h("span",{class:"by",text:mine?"Visible par toute la famille":"Proposé par "+d.me.name+" · "+p.name+" ne la verra pas"}),h("button",{class:"primary",type:"submit"},"Ajouter l'idée")));
+  form.dataset.pid=p.id;form.dataset.occ=S.occ;for(const n in keep)form[n].value=keep[n];
   const items=list.slice().sort((a,b)=>(!!a.reservedBy-!!b.reservedBy)||((a.createdAt||0)-(b.createdAt||0))).map(g=>giftCard(g,mine));
+  const fbtn=(v,label,icon)=>h("button",{type:"button","aria-pressed":f===v?"true":"false",onclick:()=>{S.ui.filter=v;render()}},icon?ico(icon):null,label,h("span",{class:"c",text:all.filter(g=>matchOcc(g,v)).length}));
+  const bd=p.birthday?daysUntil(p.birthday):null;
   fill(panel,
-    h("div",{class:"panel-h"},h("h2",{text:mine?"Mes envies":"Pour "+p.name}),h("span",{class:"meta"},list.length+" idée"+(list.length>1?"s":"")+(total?" · "+eur(total)+" au total":""))),
+    h("div",{class:"panel-h"},
+      h("div",{},h("h2",{text:mine?"Mes envies":"Pour "+p.name}),
+        p.birthday?h("p",{class:"p-sub"},ico("cake"),(mine?"Votre anniversaire : ":"Anniversaire : ")+frDM(p.birthday)+" · "+inDays(bd)):null),
+      h("span",{class:"meta"},list.length+" idée"+(list.length>1?"s":"")+(!mine&&taken?" · "+taken+" déjà offerte"+(taken>1?"s":""):"")+(total?" · "+eur(total):""))),
+    h("div",{class:"filters",role:"group","aria-label":"Filtrer par occasion"},fbtn("noel","Noël","tree"),fbtn("anniv","Anniversaire","cake"),fbtn("","Tout")),
     form,
-    mine&&d.hidden?h("p",{class:"secret",text:d.hidden+" idée"+(d.hidden>1?"s":"")+" ajoutée"+(d.hidden>1?"s":"")+" par la famille "+(d.hidden>1?"restent cachées":"reste cachée")+" pour garder la surprise."}):null,
-    h("div",{class:"list"},items.length?items:h("div",{class:"empty",text:mine?"Notez ce qui vous ferait plaisir.":"Pas encore d'idée pour "+p.name+". Soyez le premier ou la première !"})));
+    mine&&d.hidden?h("p",{class:"secret"},ico("lock"),d.hidden+" idée"+(d.hidden>1?"s":"")+" ajoutée"+(d.hidden>1?"s":"")+" par la famille "+(d.hidden>1?"restent cachées":"reste cachée")+" pour garder la surprise."):null,
+    h("div",{class:"list"},items.length?items:h("div",{class:"empty"},ico("gift"),mine?"Notez ce qui vous ferait plaisir"+(f==="noel"?" pour Noël.":f==="anniv"?" pour votre anniversaire.":"."):"Pas encore d'idée pour "+p.name+(f==="noel"?" à Noël":f==="anniv"?" pour son anniversaire":"")+". Soyez le premier ou la première !")));
   if(focus&&form[focus])form[focus].focus();
 }
 function giftCard(g,mine){
   const me=S.d.me,k="del:"+g.id;
-  const status=!mine&&g.reservedBy?h("span",{class:"pill r",text:isMe(g.reservedBy)?"Je l'offre":"Offert par "+pname(g.reservedBy)}):null;
+  const status=!mine&&g.reservedBy?h("span",{class:"pill"},ico("check"),isMe(g.reservedBy)?"Je l'offre":"Offert par "+pname(g.reservedBy)):null;
   const canDel=g.addedBy===me.id||me.isAdmin;
-  const actions=h("div",{},
-    !mine&&!g.reservedBy?h("button",{onclick:()=>act({type:"reserve",id:g.id},"C'est noté : vous l'offrez.")},"Je l'offre"):null,
+  const actions=h("div",{class:"acts"},
+    !mine&&!g.reservedBy?h("button",{class:"gift-btn",onclick:()=>act({type:"reserve",id:g.id},"C'est noté : vous l'offrez.")},ico("gift"),"Je l'offre"):null,
     !mine&&g.reservedBy&&(isMe(g.reservedBy)||me.isAdmin)?h("button",{class:"ghost",onclick:()=>act({type:"unreserve",id:g.id})},"Annuler"):null,
     canDel?h("button",{class:"ghost danger",onclick:()=>{if(askConfirm(k))act({type:"deleteGift",id:g.id},"Idée supprimée.")}},S.ui.confirm===k?"Confirmer la suppression":"Supprimer"):null);
   const link=/^https?:\/\//i.test(g.link||"")?h("a",{href:g.link,target:"_blank",rel:"noopener noreferrer",text:(()=>{try{return new URL(g.link).hostname.replace(/^www\./,"")}catch(e){return "Voir le lien"}})()}):null;
+  const o=OCC[g.occasion];
   return h("article",{class:"gift"+(g.reservedBy&&!mine?" taken":"")},
-    h("div",{class:"title",text:g.title}),
+    h("div",{class:"title"},h("span",{text:g.title}),o?h("span",{class:"tag"},ico(o.icon),o.label):null),
     h("div",{class:"price",text:g.price?eur(+g.price):""}),
     g.note||link?h("div",{class:"note"},g.note||"",g.note&&link?" · ":"",link):null,
     h("div",{class:"foot"},h("div",{style:"display:flex;gap:8px;align-items:center;flex-wrap:wrap"},status,h("span",{class:"by",text:g.addedBy===g.for?"Son idée":"Idée de "+pname(g.addedBy)})),actions));

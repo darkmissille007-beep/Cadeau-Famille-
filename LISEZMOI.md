@@ -23,3 +23,9 @@ Le glisser-déposer « Netlify Drop » ne suffit pas : il ne publie pas le serve
 - Changer le code de quelqu'un : dans « Gérer la famille », l'organisateur clique sur « Changer le code » (ou « Donner un code »), tape le code voulu ou garde celui proposé, puis « Enregistrer ». L'ancien code ne marche plus et la personne est déconnectée de ses appareils.
 - Les codes sont uniquement des chiffres (4 à 12) : sur téléphone, le pavé numérique s'ouvre directement.
 - Après 5 codes faux, le prénom est bloqué 10 minutes.
+
+## Noël et anniversaires
+- En haut de la page, le bouton « Noël / Anniversaires » change le décor (sapin, rouge et or, ou violet, corail et confettis). Il passe tout seul sur Noël en novembre et décembre ; le choix de chacun est retenu sur son appareil.
+- Chaque idée peut être marquée « Noël », « Anniversaire » ou « Les deux », et la liste se filtre par occasion.
+- « Anniversaires » (en haut, une fois connecté) : chacun indique son jour et son mois de naissance ; l'organisateur peut le faire pour tout le monde. Le bandeau affiche alors le compte à rebours jusqu'à Noël et jusqu'au prochain anniversaire.
+- Les dates d'anniversaire ne sont visibles qu'une fois connecté.
