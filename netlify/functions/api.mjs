@@ -256,6 +256,11 @@ export default async (req) => {
     }
     if (t === "deleteGift") {
       if (g.addedBy !== me.id && !me.isAdmin) return fail("Seule la personne qui a proposé l'idée peut la supprimer.", 403);
+      // Une suggestion acceptée est verrouillée : seul l'organisateur peut l'effacer.
+      if (g.fromSuggestion && !me.isAdmin) {
+        const admin = people.find(p => p.isAdmin);
+        return fail("Cette idée vient d'une suggestion que vous avez acceptée : seul " + (admin ? admin.name : "l'organisateur") + " peut l'effacer.", 403);
+      }
       await st.delete("gift/" + g.id);
       return json({ ok: true });
     }
