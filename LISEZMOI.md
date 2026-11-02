@@ -51,3 +51,10 @@ Le glisser-déposer « Netlify Drop » ne suffit pas : il ne publie pas le serve
 - La comparaison ignore les majuscules, les accents, la ponctuation et le pluriel : « Lego Ninjago », « LÉGOS ninjago ! » et « lego ninjago » sont la même idée.
 - Si quelqu'un ajoute lui-même une idée qu'on lui avait suggérée, la suggestion disparaît d'elle-même.
 - Pour ne pas gâcher de surprise, une idée cachée ajoutée par la famille (avant les suggestions anonymes) n'est jamais signalée comme doublon à la personne concernée.
+
+## Modifier une idée
+- « Modifier » sur une idée permet de changer son titre, son lien, son prix, sa précision et son occasion, tant que personne n'a décidé de l'offrir.
+- Dès que quelqu'un clique « Je l'offre », l'idée est figée : celui qui l'offre achète bien ce qu'il a vu. Si la réservation est annulée, l'idée redevient modifiable.
+- Seule la personne qui a ajouté l'idée (ou l'organisateur) peut la modifier.
+- Pour une suggestion acceptée, le titre ne change pas (elle ne peut pas être effacée, donc pas remplacée non plus) ; le lien, le prix, la précision et l'occasion restent modifiables.
+- Pour garder la surprise, la personne concernée ne voit pas pourquoi une de ses idées est figée : elle reçoit un message neutre.

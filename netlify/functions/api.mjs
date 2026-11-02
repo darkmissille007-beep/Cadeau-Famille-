@@ -243,6 +243,21 @@ export default async (req) => {
     const g = await getGift(body.id);
     if (!g) return fail("Cette idée n'existe plus.", 404);
     if (g.for === me.id && g.addedBy !== me.id) return fail("Cette idée n'existe plus.", 404);
+    if (t === "editGift") {
+      // Modifiable par son auteur (ou l'organisateur) tant que personne n'a décidé de l'offrir.
+      if (g.addedBy !== me.id && !me.isAdmin) return fail("Seule la personne qui a ajouté l'idée peut la modifier.", 403);
+      // La personne concernée ne doit pas apprendre qu'on va lui offrir : message neutre pour elle.
+      if (g.reservedBy) return fail(g.for === me.id ? "Cette idée ne peut plus être modifiée. Ajoutez plutôt une nouvelle idée avec vos précisions." : "Quelqu'un a déjà décidé d'offrir cette idée : elle ne peut plus être modifiée.", 409);
+      // Une suggestion acceptée garde son titre (elle ne peut pas être effacée, donc pas remplacée non plus).
+      const b = g.fromSuggestion && !me.isAdmin ? { ...body, title: g.title } : body;
+      const f = ideaFields(g.for, b);
+      if (typeof f === "string") return fail(f);
+      const twin = (await list(st, "gift/")).find(x => x.id !== g.id && x.for === g.for && (g.for !== me.id || x.addedBy === me.id) && same(x.title, f.title));
+      if (twin) return fail("« " + twin.title + " » est déjà dans " + (g.for === me.id ? "votre liste." : "la liste de " + (byId[g.for]?.name || "cette personne") + "."), 409);
+      await st.setJSON("gift/" + g.id, { ...g, ...f, updatedAt: Date.now() });
+      if (g.for === me.id) for (const x of await list(st, "sugg/")) if (x.for === me.id && same(x.title, f.title)) await st.delete("sugg/" + x.id);
+      return json({ ok: true });
+    }
     if (t === "reserve") {
       if (g.for === me.id) return fail("Vous ne pouvez pas vous offrir votre propre cadeau ici.");
       if (g.reservedBy && g.reservedBy !== me.id) return fail("Quelqu'un l'offre déjà.", 409);
