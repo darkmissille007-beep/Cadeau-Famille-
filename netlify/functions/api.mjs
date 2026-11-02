@@ -75,6 +75,10 @@ async function stateFor(st, me, people) {
       if (g.for === me.id && g.addedBy !== me.id) { out.hidden++; continue; } // la surprise reste cachée, même dans les données
       out.gifts.push(g.for === me.id ? { ...g, reservedBy: null } : g);
     }
+    // Suggestions anonymes : la personne visée les voit sans l'auteur ; l'auteur voit seulement les siennes en attente.
+    const sugg = await list(st, "sugg/");
+    out.suggestions = sugg.filter(x => x.for === me.id).map(({ from, ...x }) => x);
+    out.sent = sugg.filter(x => x.from === me.id && x.for !== me.id);
   } else {
     out.courses = await list(st, "course/");
     out.stays = (await list(st, "stay/")).sort((a, b) => a.start < b.start ? -1 : 1);
@@ -176,20 +180,50 @@ export default async (req) => {
     if (body.id === me.id) return fail("Vous ne pouvez pas vous retirer vous-même.");
     if (!byId[body.id]) return fail("Personne introuvable.", 404);
     await st.delete("person/" + body.id);
+    if (MODE === "cadeaux") for (const x of await list(st, "sugg/")) if (x.for === body.id || x.from === body.id) await st.delete("sugg/" + x.id);
     return json({ ok: true });
   }
 
   if (MODE === "cadeaux") {
     const getGift = async id => (await st.get("gift/" + str(id, 40), { type: "json" }));
+    // Champs communs à une idée et à une suggestion ; renvoie un message d'erreur ou les champs propres.
+    const ideaFields = (forId, b) => {
+      const title = str(b.title, 120);
+      if (!title) return "Indiquez une idée.";
+      if (PARENTS.includes(b.occasion) && parentOf(byId[forId]) !== b.occasion)
+        return (b.occasion === "meres" ? "La fête des mères" : "La fête des pères") + " ne concerne pas " + byId[forId].name + ".";
+      const link = str(b.link, 500), price = parseFloat(String(b.price ?? "").replace(",", "."));
+      return { title, link: /^https?:\/\//i.test(link) ? link : "", price: isFinite(price) && price >= 0 ? Math.round(price * 100) / 100 : null, note: str(b.note, 300), occasion: OCCASIONS.includes(b.occasion) ? b.occasion : "" };
+    };
     if (t === "addGift") {
-      if (!byId[body.for]) return fail("Personne introuvable.", 404);
-      const title = str(body.title, 120);
-      if (!title) return fail("Indiquez une idée.");
-      if (PARENTS.includes(body.occasion) && parentOf(byId[body.for]) !== body.occasion)
-        return fail((body.occasion === "meres" ? "La fête des mères" : "La fête des pères") + " ne concerne pas " + byId[body.for].name + ".");
-      const link = str(body.link, 500), price = parseFloat(String(body.price ?? "").replace(",", "."));
-      const g = { id: newId(), for: body.for, title, link: /^https?:\/\//i.test(link) ? link : "", price: isFinite(price) && price >= 0 ? Math.round(price * 100) / 100 : null, note: str(body.note, 300), occasion: OCCASIONS.includes(body.occasion) ? body.occasion : "", addedBy: me.id, reservedBy: null, createdAt: Date.now() };
-      await st.setJSON("gift/" + g.id, g);
+      // Chacun ne remplit que sa propre liste ; pour les autres, on passe par une suggestion anonyme.
+      if (body.for !== me.id) return fail("Vous ne pouvez ajouter des idées que sur votre propre liste. Envoyez plutôt une suggestion anonyme.", 403);
+      const f = ideaFields(me.id, body);
+      if (typeof f === "string") return fail(f);
+      await st.setJSON("gift/" + (f.id = newId()), { ...f, for: me.id, addedBy: me.id, reservedBy: null, createdAt: Date.now() });
+      return json({ ok: true });
+    }
+    if (t === "suggest") {
+      const to = byId[str(body.for, 40)];
+      if (!to) return fail("Personne introuvable.", 404);
+      if (to.id === me.id) return fail("Ajoutez plutôt l'idée directement à votre liste.");
+      const f = ideaFields(to.id, body);
+      if (typeof f === "string") return fail(f);
+      const pending = (await list(st, "sugg/")).filter(x => x.from === me.id && x.for === to.id);
+      if (pending.length >= 10) return fail("Vous avez déjà 10 suggestions en attente pour " + to.name + ".", 429);
+      const id = newId();
+      await st.setJSON("sugg/" + id, { ...f, id, for: to.id, from: me.id, createdAt: Date.now() });
+      return json({ ok: true });
+    }
+    if (t === "acceptSuggestion" || t === "declineSuggestion" || t === "withdrawSuggestion") {
+      const x = await st.get("sugg/" + str(body.id, 40), { type: "json" });
+      if (!x) return fail("Cette suggestion n'existe plus.", 404);
+      if (t === "withdrawSuggestion" ? x.from !== me.id : x.for !== me.id) return fail("Cette suggestion n'existe plus.", 404);
+      if (t === "acceptSuggestion") {
+        const { from, ...f } = x;
+        await st.setJSON("gift/" + (f.id = newId()), { ...f, for: me.id, addedBy: me.id, fromSuggestion: true, reservedBy: null, createdAt: Date.now() });
+      }
+      await st.delete("sugg/" + x.id);
       return json({ ok: true });
     }
     const g = await getGift(body.id);

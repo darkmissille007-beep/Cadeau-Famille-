@@ -216,6 +216,16 @@ form.add .row{grid-column:1/-1;display:flex;gap:8px;justify-content:space-betwee
 .tag .ico{color:var(--gold)}
 .pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;border-radius:99px;padding:3px 10px;background:var(--accent-soft);color:var(--accent)}
 .by{font-size:13px;color:var(--muted)}
+.sugg-h{display:flex;align-items:center;gap:8px;margin:18px 0 10px;font-family:var(--display);font-size:20px;font-weight:800}
+.sugg-h .ico{color:var(--ribbon)}
+.sugg-h .c{font-family:var(--body);font-size:13px;font-weight:700;background:var(--ribbon);color:#fff;border-radius:99px;padding:1px 9px}
+.sugg-note{color:var(--muted);font-size:14px;margin:-4px 0 10px}
+.gift.sugg{background:linear-gradient(var(--gold),var(--gold)) left top/6px 100% no-repeat,var(--gold-soft);border-style:dashed}
+.gift.sent{background:linear-gradient(var(--line),var(--line)) left top/6px 100% no-repeat,var(--paper);border-style:dashed}
+form.add.suggest{border-color:color-mix(in srgb,var(--gold) 45%,transparent);background:var(--gold-soft)}
+form.add.suggest .lbl{color:var(--fg)}
+form.add .hint{grid-column:1/-1;font-size:14px;color:var(--muted);margin:-4px 0 2px;display:flex;gap:6px;align-items:flex-start}
+.p-new{font-size:12px;font-weight:700;background:var(--ribbon);color:#fff;border-radius:99px;padding:1px 7px}
 .empty{border:1.5px dashed var(--line);border-radius:14px;padding:28px 22px;color:var(--muted);text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
 .empty .ico{width:36px;height:36px;color:var(--ribbon)}
 .secret{font-size:14px;color:var(--fg);background:var(--ribbon-soft);border-radius:12px;padding:10px 14px;display:flex;gap:8px;align-items:center;margin:0 0 14px}
@@ -371,6 +381,7 @@ const ICONS={
   cake:'<path d="M3.5 21h17M5 21v-6.5A2.5 2.5 0 0 1 7.5 12h9a2.5 2.5 0 0 1 2.5 2.5V21M5 16.5c1.4 1 2.9 1 4.3 0s2.9-1 4.3 0 2.9 1 4.3 0M12 12V8.5M12 6.2c.9-.8.9-1.8 0-2.7-.9.9-.9 1.9 0 2.7z"/>',
   check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
   lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  mask:'<path d="M3 8c3-1.5 15-1.5 18 0 0 6-3 9-5 9-1.5 0-2.5-2-4-2s-2.5 2-4 2c-2 0-5-3-5-9z"/><path d="M7.5 11.5h2M14.5 11.5h2"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
   heart:'<path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>',
   tie:'<path d="M9.5 3h5l-1.2 3.2L15.5 16 12 21l-3.5-5 2.2-9.8z"/><path d="M10.7 6.2h2.6"/>',
@@ -568,6 +579,7 @@ function renderApp(){
   fill($("people"),...d.people.map(p=>h("button",{class:"person","aria-current":p.id===S.sel?"true":"false",onclick:()=>{S.sel=p.id;render()}},
     av(p),
     h("span",{class:"p-txt"},h("span",{class:"p-name",text:p.name+(isMe(p.id)?" (moi)":"")}),(p.birthday||p.parent)?h("span",{class:"p-bd"},p.birthday?frDM(p.birthday):"",p.birthday&&p.parent?" · ":"",p.parent?(p.parent==="meres"?"maman":"papa"):""):null),
+    isMe(p.id)&&(d.suggestions||[]).length?h("span",{class:"p-new",title:"Suggestions anonymes reçues",text:"+"+d.suggestions.length}):null,
     h("span",{class:"p-n","aria-label":"idées",text:String(giftsFor(p.id).length+(isMe(p.id)?d.hidden:0))}))));
   renderGifts();
 }
@@ -579,11 +591,12 @@ function renderGifts(){
   const total=list.reduce((s,g)=>s+(+g.price||0),0),taken=list.filter(g=>g.reservedBy).length;
   const old=panel.querySelector("form.add");const keep={};let focus=null;
   if(old&&old.dataset.pid===p.id&&old.dataset.occ===S.occ){for(const n of ["title","link","price","note","occasion"])keep[n]=old[n].value;if(old.contains(document.activeElement))focus=document.activeElement.name}
-  const form=h("form",{class:"add",onsubmit:async e=>{e.preventDefault();const f=e.target;const title=f.title.value.trim();if(!title)return;
-      const ok=await act({type:"addGift",for:p.id,title,link:f.link.value.trim(),price:f.price.value.replace(/[^\d,.]/g,""),note:f.note.value.trim(),occasion:f.occasion.value},mine?"Idée ajoutée à votre liste.":"Idée ajoutée pour "+p.name+" (elle reste secrète pour lui ou elle).");
+  const form=h("form",{class:"add"+(mine?"":" suggest"),onsubmit:async e=>{e.preventDefault();const f=e.target;const title=f.title.value.trim();if(!title)return;
+      const ok=await act({type:mine?"addGift":"suggest",for:p.id,title,link:f.link.value.trim(),price:f.price.value.replace(/[^\d,.]/g,""),note:f.note.value.trim(),occasion:f.occasion.value},mine?"Idée ajoutée à votre liste.":"Suggestion envoyée anonymement à "+p.name+".");
       if(ok){const nf=$("gift-panel").querySelector("form.add");if(nf){nf.reset();nf.occasion.value=concerne(p,S.occ)?S.occ:""}}}},
-    h("div",{class:"lbl"},ico("plus"),mine?"Ajouter une envie":"Proposer une idée pour "+p.name),
-    h("input",{class:"t",name:"title",placeholder:mine?"Ce qui me ferait plaisir…":"Une idée pour "+p.name+"…",maxlength:"120",required:true,"aria-label":"Idée cadeau"}),
+    h("div",{class:"lbl"},ico(mine?"plus":"mask"),mine?"Ajouter une envie":"Suggérer une idée à "+p.name),
+    mine?null:h("p",{class:"hint",text:p.name+" la recevra sans savoir qu'elle vient de vous, et choisira de l'ajouter à sa liste ou non."}),
+    h("input",{class:"t",name:"title",placeholder:mine?"Ce qui me ferait plaisir…":"Une idée qui plairait à "+p.name+"…",maxlength:"120",required:true,"aria-label":"Idée cadeau"}),
     h("input",{name:"link",placeholder:"Lien (facultatif)",type:"url",maxlength:"500","aria-label":"Lien"}),
     h("input",{name:"price",placeholder:"Prix €",inputmode:"decimal",enterkeyhint:"done",maxlength:"10","aria-label":"Prix en euros"}),
     h("input",{class:"n2",name:"note",placeholder:"Précision : taille, couleur, où l'acheter…",maxlength:"300","aria-label":"Précision"}),
@@ -593,21 +606,44 @@ function renderGifts(){
       p.parent==="meres"?h("option",{value:"meres",selected:S.occ==="meres",text:"Fête des mères"}):null,
       p.parent==="peres"?h("option",{value:"peres",selected:S.occ==="peres",text:"Fête des pères"}):null,
       h("option",{value:"",text:"Toutes les occasions"})),
-    h("div",{class:"row"},h("span",{class:"by",text:mine?"Visible par toute la famille":"Proposé par "+d.me.name+" · "+p.name+" ne la verra pas"}),h("button",{class:"primary",type:"submit"},"Ajouter l'idée")));
+    h("div",{class:"row"},h("span",{class:"by",text:mine?"Visible par toute la famille":"Anonyme : personne ne saura qu'elle vient de vous"}),h("button",{class:"primary",type:"submit"},mine?"Ajouter l'idée":"Envoyer la suggestion")));
   form.dataset.pid=p.id;form.dataset.occ=S.occ;for(const n in keep)form[n].value=keep[n];
   const items=list.slice().sort((a,b)=>(!!a.reservedBy-!!b.reservedBy)||((a.createdAt||0)-(b.createdAt||0))).map(g=>giftCard(g,mine));
   const fbtn=(v,label,icon)=>h("button",{type:"button","aria-pressed":f===v?"true":"false",onclick:()=>{S.ui.filter=v;render()}},icon?ico(icon):null,label,h("span",{class:"c",text:all.filter(g=>matchOcc(g,v)).length}));
   const bd=p.birthday?daysUntil(p.birthday):null;
+  const recues=mine?(d.suggestions||[]):[],envoyees=mine?[]:(d.sent||[]).filter(x=>x.for===p.id);
+  const suggBox=recues.length?[
+    h("div",{class:"sugg-h"},ico("mask"),"Suggestions anonymes",h("span",{class:"c",text:recues.length})),
+    h("p",{class:"sugg-note",text:"Quelqu'un de la famille pense que ces idées vous plairaient. Ajoutez celles qui vous tentent à votre liste."}),
+    h("div",{class:"list"},...recues.map(x=>ideaCard(x,"gift sugg",h("div",{class:"acts"},
+      h("button",{class:"primary",onclick:()=>act({type:"acceptSuggestion",id:x.id},"Ajoutée à votre liste.")},"Ajouter à ma liste"),
+      h("button",{class:"ghost",onclick:()=>act({type:"declineSuggestion",id:x.id},"Suggestion écartée.")},"Non merci")),h("span",{class:"by",text:"Suggestion anonyme"}))))]:null;
+  const sentBox=envoyees.length?[
+    h("div",{class:"sugg-h"},ico("mask"),"Vos suggestions en attente",h("span",{class:"c",text:envoyees.length})),
+    h("p",{class:"sugg-note",text:p.name+" ne les a pas encore ajoutées ni écartées. Une fois ajoutées, elles apparaîtront dans sa liste."}),
+    h("div",{class:"list"},...envoyees.map(x=>ideaCard(x,"gift sent",h("div",{class:"acts"},h("button",{class:"ghost danger",onclick:()=>act({type:"withdrawSuggestion",id:x.id},"Suggestion retirée.")},"Retirer")),h("span",{class:"by",text:"Envoyée anonymement"}))))]:null;
   fill(panel,
     h("div",{class:"panel-h"},
       h("div",{},h("h2",{text:mine?"Mes envies":"Pour "+p.name}),
         p.birthday?h("p",{class:"p-sub"},ico("cake"),(mine?"Votre anniversaire : ":"Anniversaire : ")+frDM(p.birthday)+" · "+inDays(bd)):null),
       h("span",{class:"meta"},list.length+" idée"+(list.length>1?"s":"")+(!mine&&taken?" · "+taken+" déjà offerte"+(taken>1?"s":""):"")+(total?" · "+eur(total):""))),
     h("div",{class:"filters",role:"group","aria-label":"Filtrer par occasion"},...Object.entries(OCC).filter(([k])=>concerne(p,k)||all.some(g=>g.occasion===k)).map(([k,v])=>fbtn(k,v.label,v.icon)),fbtn("","Tout")),
+    suggBox,
     form,
+    sentBox,
+    sentBox?h("div",{class:"sugg-h"},ico("gift"),"Sa liste"):null,
     mine&&d.hidden?h("p",{class:"secret"},ico("lock"),d.hidden+" idée"+(d.hidden>1?"s":"")+" ajoutée"+(d.hidden>1?"s":"")+" par la famille "+(d.hidden>1?"restent cachées":"reste cachée")+" pour garder la surprise."):null,
-    h("div",{class:"list"},items.length?items:h("div",{class:"empty"},ico("gift"),mine?"Notez ce qui vous ferait plaisir"+(f==="anniv"?" pour votre anniversaire":POUR[f]||"")+".":"Pas encore d'idée pour "+p.name+(f==="anniv"?" pour son anniversaire":POUR[f]||"")+". Soyez le premier ou la première !")));
+    h("div",{class:"list"},items.length?items:h("div",{class:"empty"},ico("gift"),mine?"Notez ce qui vous ferait plaisir"+(f==="anniv"?" pour votre anniversaire":POUR[f]||"")+".":"Pas encore d'idée dans la liste de "+p.name+(f==="anniv"?" pour son anniversaire":POUR[f]||"")+". Suggérez-lui une idée, anonymement !")));
   if(focus&&form[focus])form[focus].focus();
+}
+function ideaCard(g,cls,actions,byline){
+  const link=/^https?:\/\//i.test(g.link||"")?h("a",{href:g.link,target:"_blank",rel:"noopener noreferrer",text:(()=>{try{return new URL(g.link).hostname.replace(/^www\./,"")}catch(e){return "Voir le lien"}})()}):null;
+  const o=OCC[g.occasion];
+  return h("article",{class:cls},
+    h("div",{class:"title"},h("span",{text:g.title}),o?h("span",{class:"tag"},ico(o.icon),o.label):null),
+    h("div",{class:"price",text:g.price?eur(+g.price):""}),
+    g.note||link?h("div",{class:"note"},g.note||"",g.note&&link?" · ":"",link):null,
+    h("div",{class:"foot"},h("div",{style:"display:flex;gap:8px;align-items:center;flex-wrap:wrap"},byline),actions));
 }
 function giftCard(g,mine){
   const me=S.d.me,k="del:"+g.id;
@@ -617,13 +653,8 @@ function giftCard(g,mine){
     !mine&&!g.reservedBy?h("button",{class:"gift-btn",onclick:()=>act({type:"reserve",id:g.id},"C'est noté : vous l'offrez.")},ico("gift"),"Je l'offre"):null,
     !mine&&g.reservedBy&&(isMe(g.reservedBy)||me.isAdmin)?h("button",{class:"ghost",onclick:()=>act({type:"unreserve",id:g.id})},"Annuler"):null,
     canDel?h("button",{class:"ghost danger",onclick:()=>{if(askConfirm(k))act({type:"deleteGift",id:g.id},"Idée supprimée.")}},S.ui.confirm===k?"Confirmer la suppression":"Supprimer"):null);
-  const link=/^https?:\/\//i.test(g.link||"")?h("a",{href:g.link,target:"_blank",rel:"noopener noreferrer",text:(()=>{try{return new URL(g.link).hostname.replace(/^www\./,"")}catch(e){return "Voir le lien"}})()}):null;
-  const o=OCC[g.occasion];
-  return h("article",{class:"gift"+(g.reservedBy&&!mine?" taken":"")},
-    h("div",{class:"title"},h("span",{text:g.title}),o?h("span",{class:"tag"},ico(o.icon),o.label):null),
-    h("div",{class:"price",text:g.price?eur(+g.price):""}),
-    g.note||link?h("div",{class:"note"},g.note||"",g.note&&link?" · ":"",link):null,
-    h("div",{class:"foot"},h("div",{style:"display:flex;gap:8px;align-items:center;flex-wrap:wrap"},status,h("span",{class:"by",text:g.addedBy===g.for?"Son idée":"Idée de "+pname(g.addedBy)})),actions));
+  const by=g.fromSuggestion?"Suggestion acceptée":g.addedBy===g.for?(mine?"Mon idée":"Son idée"):"Idée de "+pname(g.addedBy);
+  return ideaCard(g,"gift"+(g.reservedBy&&!mine?" taken":""),actions,[status,h("span",{class:"by",text:by})]);
 }
 refresh();
 })();

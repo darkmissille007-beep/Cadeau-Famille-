@@ -37,3 +37,10 @@ Le glisser-déposer « Netlify Drop » ne suffit pas : il ne publie pas le serve
 - Le décor passe tout seul sur la fête des mères 3 semaines avant, puis sur la fête des pères jusqu'au jour J. Un thème choisi à la main est retenu 3 semaines.
 - Seuls les parents sont concernés : Laurence (fête des mères) et Vincent (fête des pères). On ne peut ajouter une idée « Fête des mères » que pour Laurence, et « Fête des pères » que pour Vincent ; en choisissant le thème, la page ouvre directement sa liste.
 - L'organisateur peut changer ce réglage dans « Gérer la famille » (menu « Maman / Papa / Pas de fête » sur chaque ligne).
+
+## Suggestions anonymes
+- Chacun remplit uniquement sa propre liste. On ne peut plus ajouter d'idée dans la liste de quelqu'un d'autre.
+- Sur la liste d'une autre personne, « Suggérer une idée » lui envoie une suggestion anonyme : elle la voit sans savoir de qui elle vient, puis choisit « Ajouter à ma liste » ou « Non merci ».
+- Une suggestion acceptée rejoint sa liste comme une idée normale : tout le monde peut alors l'offrir avec « Je l'offre ».
+- L'auteur voit ses suggestions en attente et peut les retirer. Personne d'autre ne sait qui a suggéré quoi.
+- Les idées ajoutées pour les autres avant ce changement sont conservées telles quelles (toujours cachées à la personne concernée, avec leurs réservations).
