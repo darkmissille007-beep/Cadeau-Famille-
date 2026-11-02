@@ -379,10 +379,12 @@ const ICONS={
 function ico(n){const s=document.createElement("span");s.className="ico";s.setAttribute("aria-hidden","true");s.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+ICONS[n]+'</svg>';return s}
 document.querySelectorAll(".ico[data-i]").forEach(e=>e.replaceWith(ico(e.dataset.i)));
 const OCC={noel:{label:"Noël",icon:"tree"},anniv:{label:"Anniversaire",icon:"cake"},meres:{label:"Fête des mères",icon:"heart"},peres:{label:"Fête des pères",icon:"tie"}};
+const parentsOf=k=>((S.d&&S.d.people)||[]).filter(p=>p.parent===k);
+const concerne=(p,k)=>!(k==="meres"||k==="peres")||p.parent===k;
 const POUR={noel:" pour Noël",anniv:" pour l'anniversaire",meres:" pour la fête des mères",peres:" pour la fête des pères"};
 S.occ=document.documentElement.getAttribute("data-occasion")||"noel";
 S.ui.filter=S.occ;
-document.querySelectorAll(".occ button").forEach(b=>b.addEventListener("click",()=>{S.occ=b.dataset.occ;S.ui.filter=S.occ;store("occ",S.occ+"|"+Date.now());document.documentElement.setAttribute("data-occasion",S.occ);render()}));
+document.querySelectorAll(".occ button").forEach(b=>b.addEventListener("click",()=>{S.occ=b.dataset.occ;S.ui.filter=S.occ;{const ps=parentsOf(S.occ);if(ps.length&&!ps.some(x=>x.id===S.sel))S.sel=ps[0].id}store("occ",S.occ+"|"+Date.now());document.documentElement.setAttribute("data-occasion",S.occ);render()}));
 const MOIS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
 const frDM=b=>{const[m,d]=b.split("-").map(Number);return (d===1?"1er":d)+" "+MOIS[m-1]};
 function daysUntil(mmdd){
@@ -424,7 +426,8 @@ function renderHero(){
   const xmas=daysUntil("12-25"),me=S.d&&S.d.me,chips={};
   chips.noel=h("span",{class:"chip"+(xmas===0?" hot":"")},ico("tree"),xmas===0?"Joyeux Noël !":"Noël "+inDays(xmas));
   const fete=(k,dt,hot)=>{const n=daysTo(dt);if(!(o===k||n<=60))return null;
-    return h("span",{class:"chip"+(n===0?" hot":"")},ico(OCC[k].icon),n===0?hot:OCC[k].label+" "+inDays(n)+" · "+(dt.getDate()===1?"1er":dt.getDate())+" "+MOIS[dt.getMonth()])};
+    const qui=names(parentsOf(k));
+    return h("span",{class:"chip"+(n===0?" hot":"")},ico(OCC[k].icon),n===0?(qui?"Bonne fête, "+qui+" !":hot):OCC[k].label+(qui?" de "+qui:"")+" "+inDays(n)+" · "+(dt.getDate()===1?"1er":dt.getDate())+" "+MOIS[dt.getMonth()])};
   chips.meres=fete("meres",fm,"Bonne fête à toutes les mamans !");
   chips.peres=fete("peres",fp,"Bonne fête à tous les papas !");
   if(me){
@@ -525,11 +528,13 @@ function renderPanel(){
   }
   const last=S.ui.lastCode;
   fill(box,h("h3",{text:"La famille"}),
-    h("p",{class:"meta",text:"Chaque personne entre avec son prénom et son code. Transmettez le code en privé (SMS, de vive voix)."}),
+    h("p",{class:"meta",text:"Chaque personne entre avec son prénom et son code. Transmettez le code en privé (SMS, de vive voix). « Maman » ou « Papa » : la personne est concernée par la fête des mères ou des pères."}),
     last?h("p",{class:"code-note"},"Code de "+last.name+" : ",h("strong",{class:"code-val",text:last.code}),h("button",{type:"button",class:"ghost",onclick:async()=>{try{await navigator.clipboard.writeText(last.code);toast("Code copié.")}catch(e){toast("Copie impossible : notez le code.")}}},"Copier")):null,
     h("div",{class:"fam-list"},...d.people.map(p=>{const k="rm:"+p.id;return h("div",{class:"fam-row"},
       h("span",{class:"fam-name"},av(p),p.name+(p.isAdmin?" · organisateur":""),p.hasCode?null:h("span",{class:"pill-off",text:"pas encore de code"})),
       h("span",{class:"fam-act"},
+        S.ui.editCode!==p.id?h("select",{"aria-label":"Fête des mères ou des pères pour "+p.name,onchange:e=>act({type:"setParent",id:p.id,parent:e.target.value},e.target.value?p.name+" : "+OCC[e.target.value].label.toLowerCase()+".":"Réglage retiré pour "+p.name+".")},
+          h("option",{value:"",text:"Pas de fête"}),h("option",{value:"meres",selected:p.parent==="meres",text:"Maman"}),h("option",{value:"peres",selected:p.parent==="peres",text:"Papa"})):null,
         p.id!==me.id&&S.ui.editCode!==p.id?h("button",{type:"button",class:p.hasCode?"":"primary",onclick:()=>{S.ui.editCode=p.id;S.ui.ecVal="";S.ui.lastCode=null;render();setTimeout(()=>{const i=$("ec-"+p.id);if(i){i.focus();i.select()}})}},p.hasCode?"Changer le code":"Donner un code"):null,
         p.id!==me.id&&S.ui.editCode!==p.id?h("button",{type:"button",class:"ghost danger",onclick:()=>{if(askConfirm(k))act({type:"removePerson",id:p.id},p.name+" a été retiré.")}},S.ui.confirm===k?"Confirmer":"Retirer"):null),
       S.ui.editCode===p.id?h("form",{class:"row-form ec-form",onsubmit:async e=>{e.preventDefault();const code=$("ec-"+p.id).value.trim();if(!/^[0-9]{4,12}$/.test(code)){toast("Le code doit faire 4 à 12 chiffres.");return}
@@ -562,7 +567,7 @@ function renderApp(){
   if(!S.sel)S.sel=d.me.id;
   fill($("people"),...d.people.map(p=>h("button",{class:"person","aria-current":p.id===S.sel?"true":"false",onclick:()=>{S.sel=p.id;render()}},
     av(p),
-    h("span",{class:"p-txt"},h("span",{class:"p-name",text:p.name+(isMe(p.id)?" (moi)":"")}),p.birthday?h("span",{class:"p-bd",text:frDM(p.birthday)}):null),
+    h("span",{class:"p-txt"},h("span",{class:"p-name",text:p.name+(isMe(p.id)?" (moi)":"")}),(p.birthday||p.parent)?h("span",{class:"p-bd"},p.birthday?frDM(p.birthday):"",p.birthday&&p.parent?" · ":"",p.parent?(p.parent==="meres"?"maman":"papa"):""):null),
     h("span",{class:"p-n","aria-label":"idées",text:String(giftsFor(p.id).length+(isMe(p.id)?d.hidden:0))}))));
   renderGifts();
 }
@@ -570,13 +575,13 @@ const matchOcc=(g,f)=>!f||!g.occasion||g.occasion===f;
 function renderGifts(){
   const d=S.d,panel=$("gift-panel"),p=d.people.find(x=>x.id===S.sel);
   if(!p){fill(panel);return}
-  const mine=isMe(p.id),all=giftsFor(p.id),f=S.ui.filter,list=all.filter(g=>matchOcc(g,f));
+  const mine=isMe(p.id),all=giftsFor(p.id),f=concerne(p,S.ui.filter)||all.some(g=>g.occasion===S.ui.filter)?S.ui.filter:"",list=all.filter(g=>matchOcc(g,f));
   const total=list.reduce((s,g)=>s+(+g.price||0),0),taken=list.filter(g=>g.reservedBy).length;
   const old=panel.querySelector("form.add");const keep={};let focus=null;
   if(old&&old.dataset.pid===p.id&&old.dataset.occ===S.occ){for(const n of ["title","link","price","note","occasion"])keep[n]=old[n].value;if(old.contains(document.activeElement))focus=document.activeElement.name}
   const form=h("form",{class:"add",onsubmit:async e=>{e.preventDefault();const f=e.target;const title=f.title.value.trim();if(!title)return;
       const ok=await act({type:"addGift",for:p.id,title,link:f.link.value.trim(),price:f.price.value.replace(/[^\d,.]/g,""),note:f.note.value.trim(),occasion:f.occasion.value},mine?"Idée ajoutée à votre liste.":"Idée ajoutée pour "+p.name+" (elle reste secrète pour lui ou elle).");
-      if(ok){const nf=$("gift-panel").querySelector("form.add");if(nf){nf.reset();nf.occasion.value=S.occ}}}},
+      if(ok){const nf=$("gift-panel").querySelector("form.add");if(nf){nf.reset();nf.occasion.value=concerne(p,S.occ)?S.occ:""}}}},
     h("div",{class:"lbl"},ico("plus"),mine?"Ajouter une envie":"Proposer une idée pour "+p.name),
     h("input",{class:"t",name:"title",placeholder:mine?"Ce qui me ferait plaisir…":"Une idée pour "+p.name+"…",maxlength:"120",required:true,"aria-label":"Idée cadeau"}),
     h("input",{name:"link",placeholder:"Lien (facultatif)",type:"url",maxlength:"500","aria-label":"Lien"}),
@@ -585,8 +590,8 @@ function renderGifts(){
     h("select",{name:"occasion","aria-label":"Pour quelle occasion"},
       h("option",{value:"noel",selected:S.occ==="noel",text:"Noël"}),
       h("option",{value:"anniv",selected:S.occ==="anniv",text:"Anniversaire"}),
-      h("option",{value:"meres",selected:S.occ==="meres",text:"Fête des mères"}),
-      h("option",{value:"peres",selected:S.occ==="peres",text:"Fête des pères"}),
+      p.parent==="meres"?h("option",{value:"meres",selected:S.occ==="meres",text:"Fête des mères"}):null,
+      p.parent==="peres"?h("option",{value:"peres",selected:S.occ==="peres",text:"Fête des pères"}):null,
       h("option",{value:"",text:"Toutes les occasions"})),
     h("div",{class:"row"},h("span",{class:"by",text:mine?"Visible par toute la famille":"Proposé par "+d.me.name+" · "+p.name+" ne la verra pas"}),h("button",{class:"primary",type:"submit"},"Ajouter l'idée")));
   form.dataset.pid=p.id;form.dataset.occ=S.occ;for(const n in keep)form[n].value=keep[n];
@@ -598,7 +603,7 @@ function renderGifts(){
       h("div",{},h("h2",{text:mine?"Mes envies":"Pour "+p.name}),
         p.birthday?h("p",{class:"p-sub"},ico("cake"),(mine?"Votre anniversaire : ":"Anniversaire : ")+frDM(p.birthday)+" · "+inDays(bd)):null),
       h("span",{class:"meta"},list.length+" idée"+(list.length>1?"s":"")+(!mine&&taken?" · "+taken+" déjà offerte"+(taken>1?"s":""):"")+(total?" · "+eur(total):""))),
-    h("div",{class:"filters",role:"group","aria-label":"Filtrer par occasion"},...Object.entries(OCC).map(([k,v])=>fbtn(k,v.label,v.icon)),fbtn("","Tout")),
+    h("div",{class:"filters",role:"group","aria-label":"Filtrer par occasion"},...Object.entries(OCC).filter(([k])=>concerne(p,k)||all.some(g=>g.occasion===k)).map(([k,v])=>fbtn(k,v.label,v.icon)),fbtn("","Tout")),
     form,
     mine&&d.hidden?h("p",{class:"secret"},ico("lock"),d.hidden+" idée"+(d.hidden>1?"s":"")+" ajoutée"+(d.hidden>1?"s":"")+" par la famille "+(d.hidden>1?"restent cachées":"reste cachée")+" pour garder la surprise."):null,
     h("div",{class:"list"},items.length?items:h("div",{class:"empty"},ico("gift"),mine?"Notez ce qui vous ferait plaisir"+(f==="anniv"?" pour votre anniversaire":POUR[f]||"")+".":"Pas encore d'idée pour "+p.name+(f==="anniv"?" pour son anniversaire":POUR[f]||"")+". Soyez le premier ou la première !")));

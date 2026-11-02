@@ -56,11 +56,16 @@ const isBirthday = s => { const m = /^(\d{2})-(\d{2})$/.exec(s || ""); if (!m) r
 // Dates connues de la famille (jour et mois). Utilisées tant que la personne n'a pas choisi sa date elle-même.
 const DEFAULT_BDAYS = { "zoé": "10-28", "ethen": "11-01", "jade": "01-21", "vincent": "03-18", "chiara": "05-24", "laurence": "08-29", "paul": "09-22" };
 const bdayOf = p => p.birthday !== undefined ? p.birthday : (DEFAULT_BDAYS[String(p.name).trim().toLowerCase().normalize("NFC")] || null);
+// Parents de la famille : seuls eux sont concernés par la fête des mères / des pères. L'organisateur peut changer ce rôle.
+const DEFAULT_PARENTS = { "laurence": "meres", "vincent": "peres" };
+const PARENTS = ["meres", "peres"];
+const key = name => String(name).trim().toLowerCase().normalize("NFC");
+const parentOf = p => p.parent !== undefined ? p.parent : (DEFAULT_PARENTS[key(p.name)] || null);
 const validCode = c => typeof c === "string" && /^[0-9]{4,12}$/.test(c.trim());
 
 async function stateFor(st, me, people) {
   // Les dates d'anniversaire ne sont visibles qu'une fois connecté.
-  const withBday = p => me ? { ...publicPerson(p), birthday: bdayOf(p) } : publicPerson(p);
+  const withBday = p => me ? { ...publicPerson(p), birthday: bdayOf(p), parent: parentOf(p) } : publicPerson(p);
   const out = { me: me ? withBday(me) : null, people: people.map(withBday), needsSetup: people.length === 0 };
   if (!me) return out;
   if (MODE === "cadeaux") {
@@ -103,7 +108,7 @@ export default async (req) => {
       seen.add(name.toLowerCase());
       if (i === 0 && !validCode(code)) return fail("Votre code d'organisateur doit faire 4 à 12 chiffres.");
       if (code && !validCode(code)) return fail("Le code de " + name + " doit faire 4 à 12 chiffres.");
-      made.push({ id: newId(), name, isAdmin: i === 0, codeHash: code ? hashCode(code) : null, ver: 0, createdAt: Date.now() + i, birthday: DEFAULT_BDAYS[name.toLowerCase().normalize("NFC")] || null });
+      made.push({ id: newId(), name, isAdmin: i === 0, codeHash: code ? hashCode(code) : null, ver: 0, createdAt: Date.now() + i, birthday: DEFAULT_BDAYS[key(name)] || null, parent: DEFAULT_PARENTS[key(name)] || null });
     }
     for (const p of made) await st.setJSON("person/" + p.id, p);
     return json({ token: sign(made[0], sec) });
@@ -158,6 +163,14 @@ export default async (req) => {
     await st.setJSON("person/" + p.id, { ...p, birthday: b || null });
     return json({ ok: true });
   }
+  if (t === "setParent") {
+    if (!me.isAdmin) return fail("Seul l'organisateur peut changer ce réglage.", 403);
+    const p = byId[str(body.id, 40)];
+    if (!p) return fail("Personne introuvable.", 404);
+    const v = PARENTS.includes(body.parent) ? body.parent : null;
+    await st.setJSON("person/" + p.id, { ...p, parent: v });
+    return json({ ok: true });
+  }
   if (t === "removePerson") {
     if (!me.isAdmin) return fail("Seul l'organisateur peut retirer quelqu'un.", 403);
     if (body.id === me.id) return fail("Vous ne pouvez pas vous retirer vous-même.");
@@ -172,6 +185,8 @@ export default async (req) => {
       if (!byId[body.for]) return fail("Personne introuvable.", 404);
       const title = str(body.title, 120);
       if (!title) return fail("Indiquez une idée.");
+      if (PARENTS.includes(body.occasion) && parentOf(byId[body.for]) !== body.occasion)
+        return fail((body.occasion === "meres" ? "La fête des mères" : "La fête des pères") + " ne concerne pas " + byId[body.for].name + ".");
       const link = str(body.link, 500), price = parseFloat(String(body.price ?? "").replace(",", "."));
       const g = { id: newId(), for: body.for, title, link: /^https?:\/\//i.test(link) ? link : "", price: isFinite(price) && price >= 0 ? Math.round(price * 100) / 100 : null, note: str(body.note, 300), occasion: OCCASIONS.includes(body.occasion) ? body.occasion : "", addedBy: me.id, reservedBy: null, createdAt: Date.now() };
       await st.setJSON("gift/" + g.id, g);

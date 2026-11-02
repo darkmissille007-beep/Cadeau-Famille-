@@ -35,4 +35,5 @@ Le glisser-déposer « Netlify Drop » ne suffit pas : il ne publie pas le serve
 - Le bouton en haut propose aussi « Fête des mères » (framboise, sauge, fleurs) et « Fête des pères » (bleu marine, moutarde, étoiles), avec « Bonne fête, maman » / « Bonne fête, papa ».
 - Les dates sont calculées toutes seules chaque année (règles françaises) : fête des mères le dernier dimanche de mai, ou le premier dimanche de juin quand il tombe à la Pentecôte ; fête des pères le troisième dimanche de juin.
 - Le décor passe tout seul sur la fête des mères 3 semaines avant, puis sur la fête des pères jusqu'au jour J. Un thème choisi à la main est retenu 3 semaines.
-- Les idées peuvent être marquées « Fête des mères » ou « Fête des pères », et la liste se filtre aussi par ces occasions.
+- Seuls les parents sont concernés : Laurence (fête des mères) et Vincent (fête des pères). On ne peut ajouter une idée « Fête des mères » que pour Laurence, et « Fête des pères » que pour Vincent ; en choisissant le thème, la page ouvre directement sa liste.
+- L'organisateur peut changer ce réglage dans « Gérer la famille » (menu « Maman / Papa / Pas de fête » sur chaque ligne).
