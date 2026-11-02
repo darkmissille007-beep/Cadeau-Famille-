@@ -600,6 +600,7 @@ function renderApp(){
     h("span",{class:"p-n","aria-label":"idées",text:String(giftsFor(p.id).length+(isMe(p.id)?d.hidden:0))}))));
   renderGifts();
 }
+const adminName=()=>((S.d.people.find(p=>p.isAdmin))||{}).name||"l'organisateur";
 const matchOcc=(g,f)=>!f||!g.occasion||g.occasion===f;
 function renderGifts(){
   const d=S.d,panel=$("gift-panel"),p=d.people.find(x=>x.id===S.sel);
@@ -632,8 +633,9 @@ function renderGifts(){
   const suggBox=recues.length?[
     h("div",{class:"sugg-h"},ico("mask"),"Suggestions anonymes",h("span",{class:"c",text:recues.length})),
     h("p",{class:"sugg-note",text:"Quelqu'un de la famille pense que ces idées vous plairaient. Ajoutez celles qui vous tentent à votre liste."}),
+    d.me.isAdmin?null:h("p",{class:"secret"},ico("lock"),h("span",{},h("strong",{text:"Bon à savoir : "}),"si vous acceptez une suggestion, vous ne pourrez plus l'effacer de votre liste. Seul "+adminName()+" pourra le faire.")),
     h("div",{class:"list"},...recues.map(x=>ideaCard(x,"gift sugg",h("div",{class:"acts"},
-      h("button",{class:"primary",onclick:()=>act({type:"acceptSuggestion",id:x.id},"Ajoutée à votre liste.")},"Ajouter à ma liste"),
+      h("button",{class:"primary",onclick:()=>act({type:"acceptSuggestion",id:x.id},"Ajoutée à votre liste."+(d.me.isAdmin?"":" Seul "+adminName()+" pourra l'effacer."))},"Ajouter à ma liste"),
       h("button",{class:"ghost",onclick:()=>act({type:"declineSuggestion",id:x.id},"Suggestion écartée.")},"Non merci")),h("span",{class:"by",text:"Suggestion anonyme"}))))]:null;
   const sentBox=envoyees.length?[
     h("div",{class:"sugg-h"},ico("mask"),"Vos suggestions en attente",h("span",{class:"c",text:envoyees.length})),
@@ -665,12 +667,12 @@ function ideaCard(g,cls,actions,byline){
 function giftCard(g,mine){
   const me=S.d.me,k="del:"+g.id;
   const status=!mine&&g.reservedBy?h("span",{class:"pill"},ico("check"),isMe(g.reservedBy)?"Je l'offre":"Offert par "+pname(g.reservedBy)):null;
-  const canDel=g.addedBy===me.id||me.isAdmin;
+  const canDel=(g.addedBy===me.id&&!g.fromSuggestion)||me.isAdmin;
   const actions=h("div",{class:"acts"},
     !mine&&!g.reservedBy?h("button",{class:"gift-btn",onclick:()=>act({type:"reserve",id:g.id},"C'est noté : vous l'offrez.")},ico("gift"),"Je l'offre"):null,
     !mine&&g.reservedBy&&(isMe(g.reservedBy)||me.isAdmin)?h("button",{class:"ghost",onclick:()=>act({type:"unreserve",id:g.id})},"Annuler"):null,
     canDel?h("button",{class:"ghost danger",onclick:()=>{if(askConfirm(k))act({type:"deleteGift",id:g.id},"Idée supprimée.")}},S.ui.confirm===k?"Confirmer la suppression":"Supprimer"):null);
-  const by=g.fromSuggestion?"Suggestion acceptée":g.addedBy===g.for?(mine?"Mon idée":"Son idée"):"Idée de "+pname(g.addedBy);
+  const by=g.fromSuggestion?"Suggestion acceptée"+(mine&&!me.isAdmin?" · seul "+adminName()+" peut l'effacer":""):g.addedBy===g.for?(mine?"Mon idée":"Son idée"):"Idée de "+pname(g.addedBy);
   return ideaCard(g,"gift"+(g.reservedBy&&!mine?" taken":""),actions,[status,h("span",{class:"by",text:by})]);
 }
 refresh();

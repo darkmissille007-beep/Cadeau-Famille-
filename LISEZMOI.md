@@ -42,6 +42,7 @@ Le glisser-déposer « Netlify Drop » ne suffit pas : il ne publie pas le serve
 - Chacun remplit uniquement sa propre liste. On ne peut plus ajouter d'idée dans la liste de quelqu'un d'autre.
 - Sur la liste d'une autre personne, « Suggérer une idée » lui envoie une suggestion anonyme : elle la voit sans savoir de qui elle vient, puis choisit « Ajouter à ma liste » ou « Non merci ».
 - Une suggestion acceptée rejoint sa liste comme une idée normale : tout le monde peut alors l'offrir avec « Je l'offre ».
+- Une suggestion acceptée est verrouillée : la personne ne peut plus l'effacer, seul l'organisateur (Paul) le peut. Un encadré « Bon à savoir » le rappelle avant d'accepter.
 - L'auteur voit ses suggestions en attente et peut les retirer. Personne d'autre ne sait qui a suggéré quoi.
 - Les idées ajoutées pour les autres avant ce changement sont conservées telles quelles (toujours cachées à la personne concernée, avec leurs réservations).
 
