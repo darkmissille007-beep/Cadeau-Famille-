@@ -75,6 +75,10 @@ async function stateFor(st, me, people) {
       if (g.for === me.id && g.addedBy !== me.id) { out.hidden++; continue; } // la surprise reste cachée, même dans les données
       out.gifts.push(g.for === me.id ? { ...g, reservedBy: null } : g);
     }
+    // Suggestions anonymes : la personne visée les voit sans l'auteur ; l'auteur voit seulement les siennes en attente.
+    const sugg = await list(st, "sugg/");
+    out.suggestions = sugg.filter(x => x.for === me.id).map(({ from, ...x }) => x);
+    out.sent = sugg.filter(x => x.from === me.id && x.for !== me.id);
   } else {
     out.courses = await list(st, "course/");
     out.stays = (await list(st, "stay/")).sort((a, b) => a.start < b.start ? -1 : 1);
@@ -176,20 +180,64 @@ export default async (req) => {
     if (body.id === me.id) return fail("Vous ne pouvez pas vous retirer vous-même.");
     if (!byId[body.id]) return fail("Personne introuvable.", 404);
     await st.delete("person/" + body.id);
+    if (MODE === "cadeaux") for (const x of await list(st, "sugg/")) if (x.for === body.id || x.from === body.id) await st.delete("sugg/" + x.id);
     return json({ ok: true });
   }
 
   if (MODE === "cadeaux") {
     const getGift = async id => (await st.get("gift/" + str(id, 40), { type: "json" }));
+    // Champs communs à une idée et à une suggestion ; renvoie un message d'erreur ou les champs propres.
+    const ideaFields = (forId, b) => {
+      const title = str(b.title, 120);
+      if (!title) return "Indiquez une idée.";
+      if (PARENTS.includes(b.occasion) && parentOf(byId[forId]) !== b.occasion)
+        return (b.occasion === "meres" ? "La fête des mères" : "La fête des pères") + " ne concerne pas " + byId[forId].name + ".";
+      const link = str(b.link, 500), price = parseFloat(String(b.price ?? "").replace(",", "."));
+      return { title, link: /^https?:\/\//i.test(link) ? link : "", price: isFinite(price) && price >= 0 ? Math.round(price * 100) / 100 : null, note: str(b.note, 300), occasion: OCCASIONS.includes(b.occasion) ? b.occasion : "" };
+    };
+    // Pas de doublon : même titre à la casse, aux accents, à la ponctuation et au pluriel près (« Lego », « LEGOS » → même idée).
+    const same = (a, b) => norm(a) === norm(b);
     if (t === "addGift") {
-      if (!byId[body.for]) return fail("Personne introuvable.", 404);
-      const title = str(body.title, 120);
-      if (!title) return fail("Indiquez une idée.");
-      if (PARENTS.includes(body.occasion) && parentOf(byId[body.for]) !== body.occasion)
-        return fail((body.occasion === "meres" ? "La fête des mères" : "La fête des pères") + " ne concerne pas " + byId[body.for].name + ".");
-      const link = str(body.link, 500), price = parseFloat(String(body.price ?? "").replace(",", "."));
-      const g = { id: newId(), for: body.for, title, link: /^https?:\/\//i.test(link) ? link : "", price: isFinite(price) && price >= 0 ? Math.round(price * 100) / 100 : null, note: str(body.note, 300), occasion: OCCASIONS.includes(body.occasion) ? body.occasion : "", addedBy: me.id, reservedBy: null, createdAt: Date.now() };
-      await st.setJSON("gift/" + g.id, g);
+      // Chacun ne remplit que sa propre liste ; pour les autres, on passe par une suggestion anonyme.
+      if (body.for !== me.id) return fail("Vous ne pouvez ajouter des idées que sur votre propre liste. Envoyez plutôt une suggestion anonyme.", 403);
+      const f = ideaFields(me.id, body);
+      if (typeof f === "string") return fail(f);
+      // On ne compare qu'aux idées que la personne voit : les idées cachées (surprises) ne doivent pas se trahir.
+      const dup = (await list(st, "gift/")).find(g => g.for === me.id && g.addedBy === me.id && same(g.title, f.title));
+      if (dup) return fail("« " + dup.title + " » est déjà dans votre liste.", 409);
+      await st.setJSON("gift/" + (f.id = newId()), { ...f, for: me.id, addedBy: me.id, reservedBy: null, createdAt: Date.now() });
+      // Une suggestion reçue identique devient inutile : on la retire.
+      for (const x of await list(st, "sugg/")) if (x.for === me.id && same(x.title, f.title)) await st.delete("sugg/" + x.id);
+      return json({ ok: true });
+    }
+    if (t === "suggest") {
+      const to = byId[str(body.for, 40)];
+      if (!to) return fail("Personne introuvable.", 404);
+      if (to.id === me.id) return fail("Ajoutez plutôt l'idée directement à votre liste.");
+      const f = ideaFields(to.id, body);
+      if (typeof f === "string") return fail(f);
+      const inList = (await list(st, "gift/")).find(g => g.for === to.id && same(g.title, f.title));
+      if (inList) return fail("« " + inList.title + " » est déjà dans la liste de " + to.name + ".", 409);
+      const all = (await list(st, "sugg/")).filter(x => x.for === to.id);
+      const twin = all.find(x => same(x.title, f.title));
+      if (twin) return fail(twin.from === me.id ? "Vous avez déjà suggéré « " + twin.title + " » à " + to.name + "." : "« " + twin.title + " » a déjà été suggérée à " + to.name + ".", 409);
+      const pending = all.filter(x => x.from === me.id);
+      if (pending.length >= 10) return fail("Vous avez déjà 10 suggestions en attente pour " + to.name + ".", 429);
+      const id = newId();
+      await st.setJSON("sugg/" + id, { ...f, id, for: to.id, from: me.id, createdAt: Date.now() });
+      return json({ ok: true });
+    }
+    if (t === "acceptSuggestion" || t === "declineSuggestion" || t === "withdrawSuggestion") {
+      const x = await st.get("sugg/" + str(body.id, 40), { type: "json" });
+      if (!x) return fail("Cette suggestion n'existe plus.", 404);
+      if (t === "withdrawSuggestion" ? x.from !== me.id : x.for !== me.id) return fail("Cette suggestion n'existe plus.", 404);
+      if (t === "acceptSuggestion") {
+        const { from, ...f } = x;
+        const dup = (await list(st, "gift/")).find(g => g.for === me.id && g.addedBy === me.id && same(g.title, f.title));
+        if (dup) { await st.delete("sugg/" + x.id); return json({ ok: true, info: "« " + dup.title + " » était déjà dans votre liste." }); }
+        await st.setJSON("gift/" + (f.id = newId()), { ...f, for: me.id, addedBy: me.id, fromSuggestion: true, reservedBy: null, createdAt: Date.now() });
+      }
+      await st.delete("sugg/" + x.id);
       return json({ ok: true });
     }
     const g = await getGift(body.id);
